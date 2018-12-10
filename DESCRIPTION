@@ -1,0 +1,25 @@
+Package: ikde
+Title: Iterative Kernel Density Estimation
+Version: 0.0.1
+Authors@R: person("Taylor", "McKenzie", email = "tkmckenzie@gmail.com", role = c("aut", "cre"))
+Description: Estimation of model marginal likelihoods for Bayesian model selection using iterative
+    kernel density estimation. A multitude of methods exist for performing model selection in
+    general and estimating marginal likelihood in specific, but none are partically well-suited to
+    large models (such as Gaussian processes) applied to relatively limited datasets. Methods are
+    provided to specific and construct Stan models, estimate those models, and estimate the
+    marginal likelihood of those models.
+Maintainer: Taylor McKenzie <tkmckenzie@gmail.com>
+Depends: R (>= 3.5.0)
+Imports: 
+    rstan
+Suggests:
+    ggplot2 (>= 3.1.0), 
+    knitr (>= 1.20),  
+    Rdpack (>= 0.10.1), 
+    rmarkdown (>= 1.10)
+VignetteBuilder: knitr
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
+RdMacros: Rdpack
