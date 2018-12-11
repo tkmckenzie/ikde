@@ -3,12 +3,13 @@
 #' Defines Stan model, creates model code, and stores input data
 #' 
 #' @param ikde.model An object of class ikde.model which has been built
+#' @param eval.point A list of parameter names and the point to evaluate priors
 #' 
-#' @return An object of S4 class stanfit. See rstan::stan for more details.
+#' @return A real number indicating value of the log-prior at the evaluation point
 #' 
 #' @details 
-#' Takes a built ikde.model object, which contains code and data for its respective Stan model,
-#' and fits the model using rstan::stan.
+#' Parses sampling statements in ikde.model$model$priors and evaluates them at the specified
+#' evaluation point.
 #' 
 #' @examples
 #' data(lm.generated)
@@ -35,10 +36,11 @@
 #'   
 #' @export
 
-fit.model <-
-  function(ikde.model, burn.iter = 1000, sample.iter = 1000, chains = 1, control = NULL, refresh = NULL, display.output = FALSE){
+evaluate.priors <-
+  function(ikde.model, eval.point){
     if (class(ikde.model) != "ikde.model") stop("ikde.model must be of class \"ikde.model\".")
     if (!ikde.model$built) stop("ikde.model must be built before fitting.")
+    if (class(eval.point) != "list") stop("eval.point must be a list.")
     
     if (is.null(refresh)) refresh <- floor((burn.iter + sample.iter) / 100)
     

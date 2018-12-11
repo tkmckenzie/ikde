@@ -2,4 +2,8 @@
 
 export(build.model)
 export(define.model)
+export(evaluate.priors)
+export(evaluate.statement)
 export(fit.model)
+export(stan.dist.to.r.dist)
+export(stan.operator.to.r.operator)

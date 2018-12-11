@@ -1,0 +1,21 @@
+% Encoding: UTF-8
+
+@Unpublished{McKenzie,
+  author = {Taylor McKenzie},
+  title  = {Semi-Parametric Estimation of Allocative Inefficiency Using Smooth Non-Parametric Frontier Analysis},
+  note   = {Working Paper},
+  year   = {2018},
+}
+
+@Article{Chib,
+  author    = {Chib, Siddhartha},
+  title     = {Marginal likelihood from the {Gibbs} output},
+  journal   = {Journal of the American Statistical Association},
+  year      = {1995},
+  volume    = {90},
+  number    = {432},
+  pages     = {1313--1321},
+  publisher = {Taylor \& Francis Group},
+}
+
+@Comment{jabref-meta: databaseType:bibtex;}

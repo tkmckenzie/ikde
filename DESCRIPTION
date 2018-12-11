@@ -11,7 +11,10 @@ Description: Estimation of model marginal likelihoods for Bayesian model selecti
 Maintainer: Taylor McKenzie <tkmckenzie@gmail.com>
 Depends:
 	R (>= 3.5.0),
-	rstan
+    rstan
+Imports:
+    invgamma,
+    mvtnorm
 Suggests:
     ggplot2 (>= 3.1.0), 
     knitr (>= 1.20),  

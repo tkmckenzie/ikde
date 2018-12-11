@@ -20,10 +20,25 @@
 #' \item{built}{Boolean indicating whether the model has been built}
 #' 
 #' @details 
+#' Defines inputs to be used for building and eventually fitting Stan model.
 #' 
 #' @examples
-#'   
-#' @references
+#' data(lm.generated)
+#' 
+#' X <- lm.generated$X
+#' y <- lm.generated$y
+#' 
+#' data <- list(N = list("int<lower=1>", nrow(X)),
+#'              k = list("int<lower=1>", ncol(X)),
+#'              X = list("matrix[N, k]", X),
+#'              y = list("vector[N]", y))
+#' parameters <- list(beta = "vector[k]",
+#'                    sigma = "real<lower=0>")
+#' model <- list(priors = c("beta ~ normal(0, 10)",
+#'                          "sigma ~ inv_gamma(1, 1)"),
+#'               likelihood = c("y ~ normal(X * beta, sigma)"))
+#' 
+#' ikde.model <- define.model(data, parameters, model)
 #' 
 #' @export
 

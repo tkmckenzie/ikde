@@ -1,4 +1,4 @@
-#' Randomly generated multivariate linear model
+#' Randomly generated multivariate linear model data
 #' 
 #' A dataset for estimation of linear models
 #' 
@@ -21,4 +21,24 @@
 #' y <- X %*% beta + rnorm(N, sd = sd)
 #' y <- c(y)
 #' 
-"lm_generated"
+"lm.generated"
+
+#' Prostatic nodal development data
+#' 
+#' A dataset replicated from Chib (1995) indicating presence of prostatic nodal development among patients prostate cancer
+#' 
+#' @format A data.frame with 53 observations of 7 variables:
+#' \describe{
+#'   \item{Case}{Patient identifier}
+#'   \item{y}{Binary outcome indicating nodal development}
+#'   \item{X.1}{Explanatory variable}
+#'   \item{X.2}{Explanatory variable}
+#'   \item{X.3}{Binary explanatory variable}
+#'   \item{X.4}{Binary explanatory variable}
+#'   \item{X.5}{Binary explanatory variable}
+#' }
+#' @details 
+#' These data were replicated from Chib (1995)
+#' @references
+#' \insertRef{Chib}{ikde}
+"prostatic.nodes"
