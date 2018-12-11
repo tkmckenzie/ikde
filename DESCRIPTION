@@ -9,9 +9,9 @@ Description: Estimation of model marginal likelihoods for Bayesian model selecti
     provided to specific and construct Stan models, estimate those models, and estimate the
     marginal likelihood of those models.
 Maintainer: Taylor McKenzie <tkmckenzie@gmail.com>
-Depends: R (>= 3.5.0)
-Imports: 
-    rstan
+Depends:
+	R (>= 3.5.0),
+	rstan
 Suggests:
     ggplot2 (>= 3.1.0), 
     knitr (>= 1.20),  

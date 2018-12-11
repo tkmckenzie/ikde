@@ -8,8 +8,16 @@
 #' @param transformed.data A list describing data transformations for the Stan program to perform. Should be of the form list(variable.name = list(variable.type, variable.expression)).
 #' @param transformed.parameters A list describing parameter transformations for the Stan program to perform. Should be of the form list(variable.name = list(variable.type, variable.expression)).
 #' 
-#' @return Returns a list with the following elements
-#' \item{y.fit}{Estimated value of the frontier at X.fit}
+#' @return Returns an ikde.model object with the following elements
+#' \item{data}{A list of data passed to the Stan program}
+#' \item{transformed.data}{A list describing data transformations for the Stan program to perform}
+#' \item{parameters}{A list of parameters used in the Stan program}
+#' \item{transformed.parameters}{A list describing parameter transformations for the Stan program to perform}
+#' \item{model}{A list describing the Stan model}
+#' \item{stan.code}{Stan code for the model}
+#' \item{stan.data}{Data passed to Stan for estimation}
+#' \item{stan.dso}{DSO for Stan model, allows Stan to run model without recompilation}
+#' \item{built}{Boolean indicating whether the model has been built}
 #' 
 #' @details 
 #' 
@@ -25,7 +33,7 @@ build.model <-
     
     data <- ikde.model$data
     transformed.data <- ikde.model$transformed.data
-    parameters <- ikde.model$transformed.parameters
+    parameters <- ikde.model$parameters
     transformed.parameters <- ikde.model$transformed.parameters
     model <- ikde.model$model
     
@@ -79,14 +87,20 @@ build.model <-
     for (likelihood.code.line in model[["likelihood"]]){
       stan.code <- paste0(stan.code, "\t", likelihood.code.line, ";\n")
     }
+    stan.code <- paste0(stan.code, "}\n")
     
     #Fit model and save dso
+    print("Compiling Stan program.")
+    sink(tempfile())
     stan.dso <- rstan::stan(model_code = stan.code, data = stan.data,
                             chains = 1, warmup = 1, iter = 1)
+    sink()
     
     #Package ikde.model
     ikde.model$stan.code <- stan.code
     ikde.model$stan.data <- stan.data
     ikde.model$stan.dso <- stan.dso
     ikde.model$built <- TRUE
+    
+    return(ikde.model)
   }

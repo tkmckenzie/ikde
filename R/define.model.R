@@ -8,8 +8,16 @@
 #' @param transformed.data A list describing data transformations for the Stan program to perform. Should be of the form list(variable.name = list(variable.type, variable.expression)).
 #' @param transformed.parameters A list describing parameter transformations for the Stan program to perform. Should be of the form list(variable.name = list(variable.type, variable.expression)).
 #' 
-#' @return Returns a list with the following elements
-#' \item{y.fit}{Estimated value of the frontier at X.fit}
+#' @return Returns an ikde.model object with the following elements
+#' \item{data}{A list of data passed to the Stan program}
+#' \item{transformed.data}{A list describing data transformations for the Stan program to perform}
+#' \item{parameters}{A list of parameters used in the Stan program}
+#' \item{transformed.parameters}{A list describing parameter transformations for the Stan program to perform}
+#' \item{model}{A list describing the Stan model}
+#' \item{stan.code}{Stan code for the model}
+#' \item{stan.data}{Data passed to Stan for estimation}
+#' \item{stan.dso}{DSO for Stan model, allows Stan to run model without recompilation}
+#' \item{built}{Boolean indicating whether the model has been built}
 #' 
 #' @details 
 #' 

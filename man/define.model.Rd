@@ -19,8 +19,16 @@ define.model(data, parameters, model, transformed.data = list(),
 \item{transformed.parameters}{A list describing parameter transformations for the Stan program to perform. Should be of the form list(variable.name = list(variable.type, variable.expression)).}
 }
 \value{
-Returns a list with the following elements
-\item{y.fit}{Estimated value of the frontier at X.fit}
+Returns an ikde.model object with the following elements
+\item{data}{A list of data passed to the Stan program}
+\item{transformed.data}{A list describing data transformations for the Stan program to perform}
+\item{parameters}{A list of parameters used in the Stan program}
+\item{transformed.parameters}{A list describing parameter transformations for the Stan program to perform}
+\item{model}{A list describing the Stan model}
+\item{stan.code}{Stan code for the model}
+\item{stan.data}{Data passed to Stan for estimation}
+\item{stan.dso}{DSO for Stan model, allows Stan to run model without recompilation}
+\item{built}{Boolean indicating whether the model has been built}
 }
 \description{
 Defines Stan model, creates model code, and stores input data

@@ -2,3 +2,4 @@
 
 export(build.model)
 export(define.model)
+export(fit.model)
