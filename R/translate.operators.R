@@ -1,10 +1,8 @@
-#' Evaluate sampling statement from Stan program
+#' Translates Stan operators to R operators
 #' 
-#' @param statement A string containing a sampling statement
-#' @param ikde.model An object of class ikde.model, which has been built
-#' @param eval.point A list of parameter names and the point to evaluate the statement
+#' @param expression A string containing a mathematical expression in Stan
 #' 
-#' @return A real number indicating value of the log-density of the statement at the evaluation point
+#' @return A string containing the mathematical expression translated to R
 #' 
 #' @details 
 #' Parses the given sampling statement and evaluates it at the specified
@@ -47,7 +45,7 @@ evaluate.statement<-
     #Clean statement and extract left- and right-hand sides
     statement <- gsub(" ", "", statement)
     lhs <- strsplit(statement, "~")[[1]][1]
-    rhs <- strsplit(statement, "~")[[1]][2]
+    rhs <- strsplit(statement, "~")[[1]][]2
     
     #Extract distribution and map to R function
     distribution.stan <- gsub("\\([0-9A-Za-z.,\\*/\\+-\\^]+\\)$", "", rhs)
@@ -64,13 +62,7 @@ evaluate.statement<-
     for (eval.var in names(eval.point)){
       arg.values <- gsub(eval.var, paste0("eval.point$", eval.var), arg.values)
     }
-    #Multiplication operators must be resolved
-    #The a * b operator is defined for
-    #  - real a, real b (*)
-    #  - real a, vector b (*)
-    #  - real a, matrix b (*)
-    #  - vector a, vector b (%*%)
-    #  - vector a, matrix b (%*%)
-    #Logic: If both a and b have more than one element, use %*%; else use *
-    
+    for (stan.operator in names(stan.operator.to.r.operator)){
+      arg.values <- gsub(stan.operator, stan.operator.to.r.operator[[stan.operator]], arg.values)
+    }
   }
