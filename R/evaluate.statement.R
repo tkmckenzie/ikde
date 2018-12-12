@@ -8,7 +8,8 @@
 #' 
 #' @details 
 #' Parses the given sampling statement and evaluates it at the specified
-#' evaluation point.
+#' evaluation point. The ikde.model object and eval.point object are needed
+#' to resolve variable values in the statement.
 #' 
 #' @examples
 #' data(lm.generated)
@@ -32,11 +33,13 @@
 #' statement <- ikde.model$model$likelihood[1]
 #' eval.point <- list(beta = c(0, 1, 2, 3), sigma = 1)
 #' 
-#' print(apply(stan.extract$beta, 2, mean))
+#' # These results match:
+#' evaluate.statement(statement, ikde.model, eval.point)
+#' sum(dnorm(y, mean = X %*% eval.point$beta, sd = eval.point$sigma, log = TRUE))
 #'   
 #' @export
 
-evaluate.statement<-
+evaluate.statement <-
   function(statement, ikde.model, eval.point){
     if (class(statement) != "character") stop("statement must be a string.")
     if (length(statement) > 1) stop("statement must only contain one element.")
@@ -49,6 +52,14 @@ evaluate.statement<-
     lhs <- strsplit(statement, "~")[[1]][1]
     rhs <- strsplit(statement, "~")[[1]][2]
     
+    #Resolve variables in lhs
+    for (data.var in names(ikde.model$data)){
+      lhs <- gsub(data.var, paste0("ikde.model$data$", data.var, "[[2]]"), lhs)
+    }
+    for (eval.var in names(eval.point)){
+      lhs <- gsub(eval.var, paste0("eval.point$", eval.var), lhs)
+    }
+    
     #Extract distribution and map to R function
     distribution.stan <- gsub("\\([0-9A-Za-z.,\\*/\\+-\\^]+\\)$", "", rhs)
     
@@ -56,21 +67,26 @@ evaluate.statement<-
     distribution.r <- stan.dist.to.r.dist[[distribution.stan]]$distribution.r
     
     arg.values <- strsplit(gsub("\\)$", "", gsub("^\\(", "", gsub(distribution.stan, "", rhs))), ",")[[1]]
+    arg.names = stan.dist.to.r.dist[[distribution.stan]]$args
     
-    #Resolve value of arguments
+    #Resolve variables in distribution arguments
     for (data.var in names(ikde.model$data)){
       arg.values <- gsub(data.var, paste0("ikde.model$data$", data.var, "[[2]]"), arg.values)
     }
     for (eval.var in names(eval.point)){
       arg.values <- gsub(eval.var, paste0("eval.point$", eval.var), arg.values)
     }
-    #Multiplication operators must be resolved
-    #The a * b operator is defined for
-    #  - real a, real b (*)
-    #  - real a, vector b (*)
-    #  - real a, matrix b (*)
-    #  - vector a, vector b (%*%)
-    #  - vector a, matrix b (%*%)
-    #Logic: If both a and b have more than one element, use %*%; else use *
     
+    #Evaluate distribution arguments
+    args <- lapply(arg.values, evaluate.expression)
+    names(args) <- arg.names
+    
+    #Evaluate lhs
+    args$x <- evaluate.expression(lhs)
+    
+    #Additional arguments to distribution.r
+    args$log = TRUE
+    
+    #Evaluate sampling statement
+    return(sum(eval(parse(text = paste0("do.call(", distribution.r, ", args = args)")))))
   }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/evaluate.statement.R
 \name{evaluate.statement}
 \alias{evaluate.statement}
-\title{Define Stan model}
+\title{Evaluate sampling statement from Stan program}
 \usage{
 evaluate.statement(statement, ikde.model, eval.point)
 }
@@ -17,11 +17,12 @@ evaluate.statement(statement, ikde.model, eval.point)
 A real number indicating value of the log-density of the statement at the evaluation point
 }
 \description{
-Defines Stan model, creates model code, and stores input data
+Evaluate sampling statement from Stan program
 }
 \details{
 Parses the given sampling statement and evaluates it at the specified
-evaluation point.
+evaluation point. The ikde.model object and eval.point object are needed
+to resolve variable values in the statement.
 }
 \examples{
 data(lm.generated)
@@ -42,9 +43,11 @@ model <- list(priors = c("beta ~ normal(0, 10)",
 ikde.model <- define.model(data, parameters, model)
 ikde.model <- build.model(ikde.model)
 
-statement <- ikde.model$model$priors[1]
+statement <- ikde.model$model$likelihood[1]
 eval.point <- list(beta = c(0, 1, 2, 3), sigma = 1)
 
-print(apply(stan.extract$beta, 2, mean))
+# These results match:
+evaluate.statement(statement, ikde.model, eval.point)
+sum(dnorm(y, mean = X \%*\% eval.point$beta, sd = eval.point$sigma, log = TRUE))
   
 }

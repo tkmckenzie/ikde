@@ -1,14 +1,14 @@
-#' Stan model prior evaluation
+#' Stan model likelihood evaluation
 #' 
-#' Evaluates prior of Stan model at specified evaluation point
+#' Evaluates likelihood of Stan model at specified evaluation point
 #' 
 #' @param ikde.model An object of class ikde.model which has been built
 #' @param eval.point A list of parameter names and the point to evaluate priors
 #' 
-#' @return A real number indicating value of the log-prior at the evaluation point
+#' @return A real number indicating value of the log-likelihood at the evaluation point
 #' 
 #' @details 
-#' Parses sampling statements in ikde.model$model$priors and evaluates them at the specified
+#' Parses sampling statements in ikde.model$model$likelihood and evaluates them at the specified
 #' evaluation point.
 #' 
 #' @examples
@@ -33,18 +33,18 @@
 #' eval.point <- list(beta = c(0, 1, 2, 3), sigma = 1)
 #' 
 #' # These results match:
-#' evaluate.priors(ikde.model, eval.point)
+#' evaluate.likelihood(ikde.model, eval.point)
 #' sum(dnorm(eval.point$beta, 0, 10, log = TRUE), 
 #'     invgamma::dinvgamma(eval.point$sigma, 1, 1, log = TRUE))
 #'   
 #' @export
 
-evaluate.priors <-
+evaluate.likelihood <-
   function(ikde.model, eval.point){
     if (class(ikde.model) != "ikde.model") stop("ikde.model must be of class \"ikde.model\".")
     if (!ikde.model$built) stop("ikde.model must be built before fitting.")
     if (class(eval.point) != "list") stop("eval.point must be a list.")
     
-    return(sum(sapply(ikde.model$model$priors, evaluate.statement,
+    return(sum(sapply(ikde.model$model$likelihood, evaluate.statement,
                       ikde.model = ikde.model, eval.point = eval.point)))
   }

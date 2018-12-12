@@ -20,7 +20,7 @@
 #' beta <- runif(k, -5, 5)
 #' y <- X %*% beta + rnorm(N, sd = sd)
 #' y <- c(y)
-#' 
+#' }
 "lm.generated"
 
 #' Prostatic nodal development data

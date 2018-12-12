@@ -2,7 +2,7 @@
 % Please edit documentation in R/evaluate.priors.R
 \name{evaluate.priors}
 \alias{evaluate.priors}
-\title{Define Stan model}
+\title{Stan model prior evaluation}
 \usage{
 evaluate.priors(ikde.model, eval.point)
 }
@@ -15,7 +15,7 @@ evaluate.priors(ikde.model, eval.point)
 A real number indicating value of the log-prior at the evaluation point
 }
 \description{
-Defines Stan model, creates model code, and stores input data
+Evaluates prior of Stan model at specified evaluation point
 }
 \details{
 Parses sampling statements in ikde.model$model$priors and evaluates them at the specified
@@ -39,9 +39,12 @@ model <- list(priors = c("beta ~ normal(0, 10)",
 
 ikde.model <- define.model(data, parameters, model)
 ikde.model <- build.model(ikde.model)
-stan.fit <- fit.model(ikde.model)
-stan.extract <- extract(stan.fit)
 
-print(apply(stan.extract$beta, 2, mean))
+eval.point <- list(beta = c(0, 1, 2, 3), sigma = 1)
+
+# These results match:
+evaluate.priors(ikde.model, eval.point)
+sum(dnorm(eval.point$beta, 0, 10, log = TRUE), 
+    invgamma::dinvgamma(eval.point$sigma, 1, 1, log = TRUE))
   
 }

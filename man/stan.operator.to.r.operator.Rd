@@ -12,6 +12,6 @@ stan.operator.to.r.operator
 Mapping between Stan and R operators
 }
 \details{
-A list of Stan operators and associated R distribution functions.
+A list of Stan operators (regex) and associated R operators.
 }
 \keyword{datasets}

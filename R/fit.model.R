@@ -1,13 +1,13 @@
-#' Define Stan model
+#' Fits Stan model
 #' 
-#' Defines Stan model, creates model code, and stores input data
+#' Uses a built ikde.model to draw samples from posterior distribution using Stan.
 #' 
 #' @param ikde.model An object of class ikde.model which has been built
 #' 
 #' @return An object of S4 class stanfit. See rstan::stan for more details.
 #' 
 #' @details 
-#' Takes a built ikde.model object, which contains code and data for its respective Stan model,
+#' Takes a built ikde.model object, which contains model DSO,
 #' and fits the model using rstan::stan.
 #' 
 #' @examples

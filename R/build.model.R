@@ -1,12 +1,8 @@
-#' Define Stan model
+#' Build Stan model
 #' 
-#' Defines Stan model, creates model code, and stores input data
+#' Builds and compiles a defined Stan model
 #' 
-#' @param data A list of data passed to the Stan program. Should be of the form list(data.name = list(data.type, data.object)).
-#' @param parameters A list of parameters used in the Stan program. Should be of the form list(parameter.name = parameter.type).
-#' @param model A list describing the Stan model. Should be a list with components "priors" and "likelihood".
-#' @param transformed.data A list describing data transformations for the Stan program to perform. Should be of the form list(variable.name = list(variable.type, variable.expression)).
-#' @param transformed.parameters A list describing parameter transformations for the Stan program to perform. Should be of the form list(variable.name = list(variable.type, variable.expression)).
+#' @param ikde.model An object of class ikde.model
 #' 
 #' @return Returns an ikde.model object with the following elements
 #' \item{data}{A list of data passed to the Stan program}
@@ -20,8 +16,8 @@
 #' \item{built}{Boolean indicating whether the model has been built}
 #' 
 #' @details 
-#' Builds Stan model using defined ikde.model, including creation of Stan program and data to be
-#' passed to Stan.
+#' Builds Stan model using defined ikde.model, then compiles the model and stores DSO
+#' for fast running.
 #' 
 #' @examples
 #' data(lm.generated)

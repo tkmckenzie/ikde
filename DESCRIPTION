@@ -14,7 +14,8 @@ Depends:
     rstan
 Imports:
     invgamma,
-    mvtnorm
+    mvtnorm,
+	quantreg
 Suggests:
     ggplot2 (>= 3.1.0), 
     knitr (>= 1.20),  
