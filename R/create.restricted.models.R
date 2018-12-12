@@ -56,7 +56,7 @@ create.restricted.models <-
           next.ikde.model$data[[parameter.restr]] <- list(paste0("vector[", vector.index, "]"),
                                                                       eval.point[[parameter]][1:vector.index]) #Add restricted values to data
           next.ikde.model$parameters[[parameter.unrestr]] <- paste0("vector[", vector.length - vector.index, "]") #Add unrestricted values to parameters
-          next.ikde.model$transformed.parameters <- append(list())
+          next.ikde.model$transformed.parameters <- append(eval(parse(text = paste0("list(", parameter, " = list(vector[", vector.length, "], append_row(", parameter.restr, ", ", parameter.unrestr, ))))
           
         }
       }
