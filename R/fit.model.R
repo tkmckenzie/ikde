@@ -43,9 +43,9 @@ fit.model <-
     if (is.null(refresh)) refresh <- floor((burn.iter + sample.iter) / 100)
     
     if (!display.output) sink(tempfile())
-    stan.fit <- stan(fit = ikde.model$stan.dso, data = ikde.model$stan.data,
-                     chains = chains, warmup = burn.iter, iter = burn.iter + sample.iter,
-                     control = control, refresh = refresh)
+    stan.fit <- rstan::stan(fit = ikde.model$stan.dso, data = ikde.model$stan.data,
+                            chains = chains, warmup = burn.iter, iter = burn.iter + sample.iter,
+                            control = control, refresh = refresh)
     if (!display.output) sink()
     
     return(stan.fit)

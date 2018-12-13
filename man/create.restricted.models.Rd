@@ -38,7 +38,6 @@ ikde.model <- define.model(data, parameters, model)
 eval.point <- list(beta = c(0, 1, 2, 3),
                    sigma = 1)
 
-parameter <- names(ikde.model$parameters)[1]
-vector.index <- 1
+ikde.model.list <- create.restricted.models(ikde.model, eval.point)
 
 }

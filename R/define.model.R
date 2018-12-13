@@ -18,6 +18,7 @@
 #' \item{stan.data}{Data passed to Stan for estimation}
 #' \item{stan.dso}{DSO for Stan model, allows Stan to run model without recompilation}
 #' \item{built}{Boolean indicating whether the model has been built}
+#' \item{density.variable}{Name of variable to take density of when using IKDE}
 #' 
 #' @details 
 #' Defines inputs to be used for building and eventually fitting Stan model.
@@ -63,6 +64,7 @@ define.model <-
     ikde.model$stan.data <- list()
     ikde.model$stan.dso <- NA
     ikde.model$built <- FALSE
+    ikde.model$density.variable <- list()
     
     class(ikde.model) <- "ikde.model"
     

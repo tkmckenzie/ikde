@@ -61,7 +61,7 @@ evaluate.statement <-
     }
     
     #Extract distribution and map to R function
-    distribution.stan <- gsub("\\([0-9A-Za-z\\.,\\*/\\+-\\^]+\\)$", "", rhs)
+    distribution.stan <- gsub("\\([0-9A-Za-z\\.,\\*/\\+-\\^_]+\\)$", "", rhs)
     
     if (!(distribution.stan %in% names(stan.dist.to.r.dist))) stop(paste0(distribution.stan, " distribution not currently supported."))
     distribution.r <- stan.dist.to.r.dist[[distribution.stan]]$distribution.r

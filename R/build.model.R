@@ -14,6 +14,7 @@
 #' \item{stan.data}{Data passed to Stan for estimation}
 #' \item{stan.dso}{DSO for Stan model, allows Stan to run model without recompilation}
 #' \item{built}{Boolean indicating whether the model has been built}
+#' \item{density.variable}{Name of variable to take density of when using IKDE}
 #' 
 #' @details 
 #' Builds Stan model using defined ikde.model, then compiles the model and stores DSO

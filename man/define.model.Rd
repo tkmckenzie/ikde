@@ -29,6 +29,7 @@ Returns an ikde.model object with the following elements
 \item{stan.data}{Data passed to Stan for estimation}
 \item{stan.dso}{DSO for Stan model, allows Stan to run model without recompilation}
 \item{built}{Boolean indicating whether the model has been built}
+\item{density.variable}{Name of variable to take density of when using IKDE}
 }
 \description{
 Defines Stan model, creates model code, and stores input data
