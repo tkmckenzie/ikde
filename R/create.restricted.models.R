@@ -25,6 +25,11 @@
 #'               likelihood = c("y ~ normal(X * beta, sigma)"))
 #' 
 #' ikde.model <- define.model(data, parameters, model)
+#' eval.point <- list(beta = c(0, 1, 2, 3),
+#'                    sigma = 1)
+#' 
+#' parameter <- names(ikde.model$parameters)[1]
+#' vector.index <- 1
 #' 
 #' @export
 
@@ -54,10 +59,11 @@ create.restricted.models <-
           next.ikde.model <- current.ikde.model
           next.ikde.model$parameters[[parameter]] <- NULL #Remove from parameters list
           next.ikde.model$data[[parameter.restr]] <- list(paste0("vector[", vector.index, "]"),
-                                                                      eval.point[[parameter]][1:vector.index]) #Add restricted values to data
+                                                                  as.array(eval.point[[parameter]][1:vector.index])) #Add restricted values to data
           next.ikde.model$parameters[[parameter.unrestr]] <- paste0("vector[", vector.length - vector.index, "]") #Add unrestricted values to parameters
-          next.ikde.model$transformed.parameters <- append(eval(parse(text = paste0("list(", parameter, " = list(vector[", vector.length, "], append_row(", parameter.restr, ", ", parameter.unrestr, ))))
+          next.ikde.model$transformed.parameters <- append(eval(parse(text = paste0("list(", parameter, " = list(\"vector[", vector.length, "]\", \"", parameter, " = append_row(", parameter.restr, ", ", parameter.unrestr, ")\"))"))), next.ikde.model$transformed.parameters)
           
+          next.ikde.model <- build.model(next.ikde.model)
         }
       }
     }

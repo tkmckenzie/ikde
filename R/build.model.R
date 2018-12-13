@@ -63,14 +63,14 @@ build.model <-
     stan.code <- paste0(stan.code, "}\n")
     
     #Transformed data block
-    if (length(transformed.data > 0)){
+    if (length(transformed.data) > 0){
       stan.code <- paste0(stan.code, "transformed data{\n")
       code.block <- ""
       for (transformed.data.key in names(transformed.data)){
         stan.code <- paste0(stan.code, "\t", transformed.data[[transformed.data.key]][[1]], " ", transformed.data.key, ";\n")
         code.block <- paste0(code.block, "\t", transformed.data[[transformed.data.key]][[2]], ";\n")
       }
-      stan.code <- paste0(stan.code, "\n", code.block,)
+      stan.code <- paste0(stan.code, "\n", code.block)
       stan.code <- paste0(stan.code, "}\n")
     }
     
@@ -81,15 +81,15 @@ build.model <-
     }
     stan.code <- paste0(stan.code, "}\n")
     
-    #Transformed data block
-    if (length(transformed.parameters > 0)){
+    #Transformed parameters block
+    if (length(transformed.parameters) > 0){
       stan.code <- paste0(stan.code, "transformed parameters{\n")
       code.block <- ""
       for (transformed.parameters.key in names(transformed.parameters)){
         stan.code <- paste0(stan.code, "\t", transformed.parameters[[transformed.parameters.key]][[1]], " ", transformed.parameters.key, ";\n")
         code.block <- paste0(code.block, "\t", transformed.parameters[[transformed.parameters.key]][[2]], ";\n")
       }
-      stan.code <- paste0(stan.code, "\n", code.block,)
+      stan.code <- paste0(stan.code, "\n", code.block)
       stan.code <- paste0(stan.code, "}\n")
     }
     

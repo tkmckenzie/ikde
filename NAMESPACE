@@ -2,6 +2,7 @@
 
 export("%stan*%")
 export(build.model)
+export(create.restricted.models)
 export(define.model)
 export(evaluate.expression)
 export(evaluate.likelihood)
