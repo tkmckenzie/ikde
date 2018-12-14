@@ -25,6 +25,8 @@ evaluate.expression <-
     
     dots <- list(...)
     list2env(dots, environment())
+    print(stan.expression)
+    print(ls())
     
     r.expression <- stan.expression
     #Replace Stan operators with R operators
