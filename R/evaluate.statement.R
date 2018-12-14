@@ -78,11 +78,16 @@ evaluate.statement <-
     }
     
     #Evaluate distribution arguments
-    args <- lapply(arg.values, evaluate.expression)
+    args <- lapply(arg.values, evaluate.expression, ikde.model = ikde.model, eval.point = eval.point)
     names(args) <- arg.names
     
     #Evaluate lhs
-    args$x <- evaluate.expression(lhs)
+    #I think there's an issue here
+    #If lhs contains a variable that is not globally defined (e.g., eval.point), evaluate.expression attempts to
+    #  evaluate in parent.frame (i.e., in evaluate.expression env). So, additional arguments need to be passed to
+    #  evaluate.expression as they are needed. 
+    #  OR need to pass correct environment to eval.
+    args$x <- evaluate.expression(lhs, ikde.model = ikde.model, eval.point = eval.point)
     
     #Additional arguments to distribution.r
     args$log = TRUE

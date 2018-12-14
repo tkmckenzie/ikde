@@ -4,7 +4,7 @@
 \alias{evaluate.expression}
 \title{Evaluate expression from Stan program}
 \usage{
-evaluate.expression(stan.expression)
+evaluate.expression(stan.expression, ...)
 }
 \arguments{
 \item{stan.expression}{String representing Stan expression. All variables must be present in parent environment.}

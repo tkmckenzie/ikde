@@ -19,9 +19,12 @@
 #' @export
 
 evaluate.expression <-
-  function(stan.expression){
+  function(stan.expression, ...){
     if (class(stan.expression) != "character") stop("expression must be a string.")
     if (length(stan.expression) != 1) stop("expression must be a single string.")
+    
+    dots <- list(...)
+    list2env(dots, environment())
     
     r.expression <- stan.expression
     #Replace Stan operators with R operators

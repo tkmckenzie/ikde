@@ -39,5 +39,9 @@ eval.point <- list(beta = c(0, 1, 2, 3),
                    sigma = 1)
 
 ikde.model.list <- create.restricted.models(ikde.model, eval.point)
+for (restricted.ikde.model in ikde.model.list){
+  cat(restricted.ikde.model$stan.code)
+  cat("\\n--------------------------------------------------\\n")
+}
 
 }

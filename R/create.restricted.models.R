@@ -31,6 +31,7 @@
 #' ikde.model.list <- create.restricted.models(ikde.model, eval.point)
 #' for (restricted.ikde.model in ikde.model.list){
 #'   cat(restricted.ikde.model$stan.code)
+#'   cat("\n--------------------------------------------------\n")
 #' }
 #' 
 #' @export
@@ -39,12 +40,14 @@ create.restricted.models <-
   function(ikde.model, eval.point){
     if (class(ikde.model) != "ikde.model") stop("ikde.model must be of class \"ikde.model\".")
     
-    #First build unrestricted model if it hasn't been already
-    if (!ikde.model$built) ikde.model <- build.model(ikde.model)
-    ikde.model$density.variable <- names(ikde.model$parameters)[1]
-    
     current.ikde.model <- ikde.model
-    model.list <- list(ikde.model)
+    
+    #First build unrestricted model if it hasn't been already
+    if (!current.ikde.model$built) current.ikde.model <- build.model(current.ikde.model)
+    current.ikde.model$density.variable <- list(name = names(current.ikde.model$parameters)[1])
+    current.ikde.model$density.variable$value <- eval.point[[current.ikde.model$density.variable$name]][1]
+    
+    model.list <- list(current.ikde.model)
     num.parameters <- length(ikde.model$parameters)
     for (parameter.index in 1:num.parameters){
       parameter <- names(ikde.model$parameters)[parameter.index]
@@ -54,13 +57,13 @@ create.restricted.models <-
       parameter.restriction <- substr(parameter.type, as.numeric(parameter.restriction.pos), as.numeric(parameter.restriction.pos) + attr(parameter.restriction.pos, "match.length") - 1)
       if (grepl("vector", parameter.type)){
         #Only need to build two models: One with partially restricted vector and one with fully restricted vector (if this is not the last parameter in the model)
-        #TODO: Get parameter restrictions
         vector.length.pos <- gregexpr("(?<=vector\\[)[0-9A-Za-z\\.,\\*/\\+-\\^_]+(?=\\])", parameter.type, perl = TRUE)[[1]]
         vector.length <- substr(parameter.type, as.numeric(vector.length.pos), as.numeric(vector.length.pos) + attr(vector.length.pos, "match.length") - 1)
-        # for (data.var in names(ikde.model$data)){
-        #   vector.length <- gsub(data.var, paste0("ikde.model$data$", data.var, "[[2]]"), vector.length)
-        # }
-        # vector.length <- evaluate.expression(vector.length)
+        vector.length.eval <- vector.length
+        for (data.var in names(ikde.model$data)){
+          vector.length.eval <- gsub(data.var, paste0("ikde.model$data$", data.var, "[[2]]"), vector.length.eval)
+        }
+        vector.length.eval <- evaluate.expression(vector.length.eval)
         
         #Create names for restricted/unrestricted parameters in Stan code
         parameter.restr <- paste0(parameter, "_restr")
@@ -86,8 +89,17 @@ create.restricted.models <-
           }
         }
         partial.ikde.model$density.variable <- list(name = parameter.unrestr)
+        partial.ikde.model$density.variable$value <- eval.point[[parameter]][2]
         partial.ikde.model <- build.model(partial.ikde.model)
         model.list <- append(model.list, list(partial.ikde.model))
+        
+        if (vector.length.eval > 2){
+          for (vector.index in 2:(vector.length.eval - 1)){
+            partial.ikde.model$data$num_restrictions[[2]] <- vector.index #Only data is changed, no code, so don't need to re-build
+            partial.ikde.model$density.variable$value <- eval.point[[parameter]][vector.index + 1]
+            model.list <- append(model.list, list(partial.ikde.model))
+          }
+        }
         
         #Create and build fully restricted model, if this is not the final parameter
         #Update current.ikde.model for next parameter at the same time
@@ -108,6 +120,7 @@ create.restricted.models <-
           if (length(prior.rm.index) > 0) current.ikde.model$model$priors <- current.ikde.model$model$priors[-prior.rm.index]
           
           current.ikde.model$density.variable <- list(name = names(ikde.model$parameters)[parameter.index + 1])
+          current.ikde.model$density.variable$value <- eval.point[[current.ikde.model$density.variable$name]][1]
           current.ikde.model <- build.model(current.ikde.model)
           model.list <- append(model.list, list(current.ikde.model))
         }
@@ -129,6 +142,7 @@ create.restricted.models <-
           if (length(prior.rm.index) > 0) current.ikde.model$model$priors <- current.ikde.model$model$priors[-prior.rm.index]
           
           current.ikde.model$density.variable <- list(name = names(ikde.model$parameters)[parameter.index + 1])
+          current.ikde.model$density.variable$value <- eval.point[[current.ikde.model$density.variable$name]][1]
           current.ikde.model <- build.model(current.ikde.model)
           model.list <- append(model.list, list(current.ikde.model))
         }
