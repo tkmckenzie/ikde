@@ -22,6 +22,7 @@ Takes a built ikde.model object, which contains model DSO,
 and fits the model using rstan::stan.
 }
 \examples{
+\dontrun{
 data(lm.generated)
 
 X <- lm.generated$X
@@ -42,6 +43,8 @@ ikde.model <- build.model(ikde.model)
 stan.fit <- fit.model(ikde.model)
 stan.extract <- extract(stan.fit)
 
-print(apply(stan.extract$beta, 2, mean))
-  
+print(apply(stan.extract$beta, 2, mean)) # Only an estimation, may not exactly match presented result
+# [1] 3.236087 1.629510 4.496279 1.211404
+}
+
 }

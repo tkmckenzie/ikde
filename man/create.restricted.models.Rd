@@ -16,9 +16,13 @@ Returns a list of built ikde.models for each restricted model
 Creates set of restricted models to be used for posterior density estimation
 }
 \details{
-
+Posterior density can be estimated by breaking the multi-dimensional density into
+one-dimensional components. This method creates restricted models from which conditional
+densities can be estimated. Each real parameter and each entry of vector parameters are
+restricted one at a time, with values restricted at the specified point.
 }
 \examples{
+\dontrun{
 data(lm.generated)
 
 X <- lm.generated$X
@@ -35,13 +39,14 @@ model <- list(priors = c("beta ~ normal(0, 10)",
               likelihood = c("y ~ normal(X * beta, sigma)"))
 
 ikde.model <- define.model(data, parameters, model)
-eval.point <- list(beta = c(0, 1, 2, 3),
-                   sigma = 1)
+eval.point <- list(beta = c(1, 2, 3, 4),
+                   sigma = 5)
 
 ikde.model.list <- create.restricted.models(ikde.model, eval.point)
 for (restricted.ikde.model in ikde.model.list){
   cat(restricted.ikde.model$stan.code)
-  cat("\\n--------------------------------------------------\\n")
+  cat("--------------------------------------------------\\n")
+}
 }
 
 }

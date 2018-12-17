@@ -23,6 +23,7 @@ density. Each ikde.model is fit, then conditional posterior density is estimated
 specified point.
 }
 \examples{
+\dontrun{
 data(lm.generated)
 
 X <- lm.generated$X
@@ -46,6 +47,8 @@ stan.extract <- rstan::extract(stan.fit)
 eval.point <- list(beta = apply(stan.extract$beta, 2, mean),
                    sigma = mean(stan.extract$sigma))
 
-evaluate.posterior(ikde.model, eval.point)
+evaluate.posterior(ikde.model, eval.point) # Only an estimation, may not exactly match presented result
+# [1] -39.95366
+}
 
 }

@@ -20,7 +20,7 @@ Returns an ikde.model object with the following elements
 \item{stan.data}{Data passed to Stan for estimation}
 \item{stan.dso}{DSO for Stan model, allows Stan to run model without recompilation}
 \item{built}{Boolean indicating whether the model has been built}
-\item{density.variable}{Name of variable to take density of when using IKDE}
+\item{density.variable}{List containing two elements: "name" of the variable on which density estimation should be performed on, and "value" indicating the value the density should be estimated}
 }
 \description{
 Builds and compiles a defined Stan model
@@ -30,6 +30,7 @@ Builds Stan model using defined ikde.model, then compiles the model and stores D
 for fast running.
 }
 \examples{
+\dontrun{
 data(lm.generated)
 
 X <- lm.generated$X
@@ -49,5 +50,6 @@ ikde.model <- define.model(data, parameters, model)
 ikde.model <- build.model(ikde.model)
 
 cat(ikde.model$stan.code)
+}
 
 }

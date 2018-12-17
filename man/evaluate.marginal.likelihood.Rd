@@ -37,17 +37,9 @@ model <- list(priors = c("beta ~ normal(0, 10)",
                          "sigma ~ inv_gamma(1, 1)"),
               likelihood = c("y ~ normal(X * beta, sigma)"))
 
-ikde.model.1 <- define.model(data, parameters, model)
+ikde.model <- define.model(data, parameters, model)
 
-evaluate.marginal.likelihood(ikde.model.1)
-
-
-
-burn.iter = 1000
-sample.iter = 1000
-control = NULL
-refresh = NULL
-display.output = FALSE
-show.trace = FALSE
+evaluate.marginal.likelihood(ikde.model) # Only an estimation, may not exactly match presented result
+# [1] -368.3207
   
 }

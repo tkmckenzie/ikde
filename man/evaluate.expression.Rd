@@ -7,7 +7,9 @@
 evaluate.expression(stan.expression, ...)
 }
 \arguments{
-\item{stan.expression}{String representing Stan expression. All variables must be present in parent environment.}
+\item{stan.expression}{String representing Stan expression. All variables must be passed in ... .}
+
+\item{...}{Any variables present in the parent environment that are needed to evaluate stan.expression}
 }
 \value{
 The result of the Stan expression
@@ -16,7 +18,8 @@ The result of the Stan expression
 Evaluate expression from Stan program
 }
 \details{
-
+First, all variables specified in ... are loaded into the environment. Then, all multipliction
+is replaced by %stan*% and the resulting expression is evaluated with eval.
 }
 \examples{
 X <- matrix(1:9, nrow = 3)
@@ -27,5 +30,9 @@ stan.expression <- "(3 + 2) * X * (5 * b)"
 # These results match:
 evaluate.expression(stan.expression)
 print((3 + 2) * X \%*\% (5 * b))
+#      [,1]
+# [1,] 1650
+# [2,] 2025
+# [3,] 2400
 
 }

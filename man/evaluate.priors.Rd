@@ -38,13 +38,13 @@ model <- list(priors = c("beta ~ normal(0, 10)",
               likelihood = c("y ~ normal(X * beta, sigma)"))
 
 ikde.model <- define.model(data, parameters, model)
-ikde.model <- build.model(ikde.model)
 
-eval.point <- list(beta = c(0, 1, 2, 3), sigma = 1)
+eval.point <- list(beta = c(1, 2, 3, 4), sigma = 5)
 
 # These results match:
 evaluate.priors(ikde.model, eval.point)
 sum(dnorm(eval.point$beta, 0, 10, log = TRUE), 
     invgamma::dinvgamma(eval.point$sigma, 1, 1, log = TRUE))
+# [1] -16.45497
   
 }

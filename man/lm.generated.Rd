@@ -24,7 +24,7 @@ N <- 100
 k <- 4
 sd <- 10
 
-X <- cbind(1, matrix(runif(N * (k - 1)), ncol = k - 1))
+X <- cbind(1, matrix(runif(N * (k - 1), -10, 10), ncol = k - 1))
 beta <- runif(k, -5, 5)
 y <- X %*% beta + rnorm(N, sd = sd)
 y <- c(y)

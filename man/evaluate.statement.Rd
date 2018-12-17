@@ -41,13 +41,13 @@ model <- list(priors = c("beta ~ normal(0, 10)",
               likelihood = c("y ~ normal(X * beta, sigma)"))
 
 ikde.model <- define.model(data, parameters, model)
-ikde.model <- build.model(ikde.model)
 
 statement <- ikde.model$model$likelihood[1]
-eval.point <- list(beta = c(0, 1, 2, 3), sigma = 1)
+eval.point <- list(beta = c(1, 2, 3, 4), sigma = 5)
 
 # These results match:
 evaluate.statement(statement, ikde.model, eval.point)
 sum(dnorm(y, mean = X \%*\% eval.point$beta, sd = eval.point$sigma, log = TRUE))
+# [1] -1054.093
   
 }
