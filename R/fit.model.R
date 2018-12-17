@@ -11,7 +11,7 @@
 #' and fits the model using rstan::stan.
 #' 
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' data(lm.generated)
 #' 
 #' X <- lm.generated$X

@@ -42,7 +42,6 @@
 evaluate.priors <-
   function(ikde.model, eval.point){
     if (class(ikde.model) != "ikde.model") stop("ikde.model must be of class \"ikde.model\".")
-    if (!ikde.model$built) stop("ikde.model must be built before fitting.")
     if (class(eval.point) != "list") stop("eval.point must be a list.")
     
     return(sum(sapply(ikde.model$model$priors, evaluate.statement,

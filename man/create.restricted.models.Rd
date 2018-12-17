@@ -22,7 +22,7 @@ densities can be estimated. Each real parameter and each entry of vector paramet
 restricted one at a time, with values restricted at the specified point.
 }
 \examples{
-\dontrun{
+\donttest{
 data(lm.generated)
 
 X <- lm.generated$X

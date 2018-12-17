@@ -1,6 +1,6 @@
 #' Define Stan model
 #' 
-#' Defines Stan model, creates model code, and stores input data
+#' Defines Stan model and stores input data
 #' 
 #' @param data A list of data passed to the Stan program. Should be of the form list(data.name = list(data.type, data.object)).
 #' @param parameters A list of parameters used in the Stan program. Should be of the form list(parameter.name = parameter.type).
@@ -18,7 +18,7 @@
 #' \item{stan.data}{Data passed to Stan for estimation}
 #' \item{stan.dso}{DSO for Stan model, allows Stan to run model without recompilation}
 #' \item{built}{Boolean indicating whether the model has been built}
-#' \item{density.variable}{List containing two elements: "name" of the variable on which density estimation should be performed on, and "value" indicating the value the density should be estimated}
+#' \item{density.variable}{List containing two elements: "name" of the variable on which density estimation should be performed on, and "value" indicating the point at which density should be estimated}
 #' 
 #' @details 
 #' Defines inputs to be used for building and eventually fitting Stan model.

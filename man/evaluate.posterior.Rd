@@ -10,12 +10,14 @@ evaluate.posterior(ikde.model, eval.point, burn.iter = 1000,
 }
 \arguments{
 \item{ikde.model}{An object of class ikde.model, does not necessarily have to be built}
+
+\item{eval.point}{A list of parameter names and the point to evaluate the posterior}
 }
 \value{
-A real number indicating value of the log-posterior at the posterior mean
+A real number indicating value of the log-posterior at the specified evaluation point
 }
 \description{
-Evaluates posterior of Stan model at the posterior mean
+Evaluates posterior of Stan model at specified evaluation point
 }
 \details{
 Uses list of ikde.model objects created by create.restricted.models to estimate posterior
@@ -23,7 +25,7 @@ density. Each ikde.model is fit, then conditional posterior density is estimated
 specified point.
 }
 \examples{
-\dontrun{
+\donttest{
 data(lm.generated)
 
 X <- lm.generated$X
@@ -41,14 +43,14 @@ model <- list(priors = c("beta ~ normal(0, 10)",
 
 ikde.model <- define.model(data, parameters, model)
 ikde.model <- build.model(ikde.model)
-stan.fit <- fit.model(ikde.model)
+stan.fit <- fit.model(ikde.model, 10000, 10000)
 stan.extract <- rstan::extract(stan.fit)
 
 eval.point <- list(beta = apply(stan.extract$beta, 2, mean),
                    sigma = mean(stan.extract$sigma))
 
-evaluate.posterior(ikde.model, eval.point) # Only an estimation, may not exactly match presented result
-# [1] -39.95366
+evaluate.posterior(ikde.model, eval.point, 5000, 5000) # Only an estimation, may not exactly match presented result
+# [1] -20.18479
 }
 
 }

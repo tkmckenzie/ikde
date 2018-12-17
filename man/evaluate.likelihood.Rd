@@ -9,10 +9,11 @@ evaluate.likelihood(ikde.model, eval.point)
 \arguments{
 \item{ikde.model}{An object of class ikde.model which has been built}
 
-\item{eval.point}{A list of parameter names and the point to evaluate priors}
+\item{eval.point}{A list of parameter names and the point to evaluate the likelihood}
 }
 \value{
-A real number indicating value of the log-likelihood at the evaluation point
+A real number indicating value of the log-likelihood at the specified evaluation
+point
 }
 \description{
 Evaluates likelihood of Stan model at specified evaluation point

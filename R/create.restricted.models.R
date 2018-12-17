@@ -13,7 +13,7 @@
 #' restricted one at a time, with values restricted at the specified point.
 #' 
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' data(lm.generated)
 #' 
 #' X <- lm.generated$X

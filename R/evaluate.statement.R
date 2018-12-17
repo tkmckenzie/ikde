@@ -44,7 +44,6 @@ evaluate.statement <-
     if (class(statement) != "character") stop("statement must be a string.")
     if (length(statement) > 1) stop("statement must only contain one element.")
     if (class(ikde.model) != "ikde.model") stop("ikde.model must be of class \"ikde.model\".")
-    if (!ikde.model$built) stop("ikde.model must be built before fitting.")
     if (class(eval.point) != "list") stop("eval.point must be a list.")
     
     #Clean statement and extract left- and right-hand sides
@@ -61,7 +60,7 @@ evaluate.statement <-
     }
     
     #Extract distribution and map to R function
-    distribution.stan <- gsub("\\([0-9A-Za-z\\.,\\*/\\+-\\^_]+\\)$", "", rhs)
+    distribution.stan <- gsub("\\([0-9A-Za-z\\.,\\*/\\+-\\^_\\(\\)]+\\)$", "", rhs)
     
     if (!(distribution.stan %in% names(stan.dist.to.r.dist))) stop(paste0(distribution.stan, " distribution not currently supported."))
     distribution.r <- stan.dist.to.r.dist[[distribution.stan]]$distribution.r
@@ -82,11 +81,6 @@ evaluate.statement <-
     names(args) <- arg.names
     
     #Evaluate lhs
-    #I think there's an issue here
-    #If lhs contains a variable that is not globally defined (e.g., eval.point), evaluate.expression attempts to
-    #  evaluate in parent.frame (i.e., in evaluate.expression env). So, additional arguments need to be passed to
-    #  evaluate.expression as they are needed. 
-    #  OR need to pass correct environment to eval.
     args$x <- evaluate.expression(lhs, ikde.model = ikde.model, eval.point = eval.point)
     
     #Additional arguments to distribution.r

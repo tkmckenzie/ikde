@@ -3,9 +3,10 @@
 #' Evaluates likelihood of Stan model at specified evaluation point
 #' 
 #' @param ikde.model An object of class ikde.model which has been built
-#' @param eval.point A list of parameter names and the point to evaluate priors
+#' @param eval.point A list of parameter names and the point to evaluate the likelihood
 #' 
-#' @return A real number indicating value of the log-likelihood at the evaluation point
+#' @return A real number indicating value of the log-likelihood at the specified evaluation
+#' point
 #' 
 #' @details 
 #' Parses sampling statements in ikde.model$model$likelihood and evaluates them at the specified

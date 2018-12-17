@@ -2,7 +2,7 @@
 #' 
 #' Builds and compiles a defined Stan model
 #' 
-#' @param ikde.model An object of class ikde.model
+#' @param ikde.model An object of class ikde.model, e.g., from define.model
 #' 
 #' @return Returns an ikde.model object with the following elements
 #' \item{data}{A list of data passed to the Stan program}
@@ -14,14 +14,14 @@
 #' \item{stan.data}{Data passed to Stan for estimation}
 #' \item{stan.dso}{DSO for Stan model, allows Stan to run model without recompilation}
 #' \item{built}{Boolean indicating whether the model has been built}
-#' \item{density.variable}{List containing two elements: "name" of the variable on which density estimation should be performed on, and "value" indicating the value the density should be estimated}
+#' \item{density.variable}{List containing two elements: "name" of the variable on which density estimation should be performed on, and "value" indicating the point at which density should be estimated}
 #' 
 #' @details 
 #' Builds Stan model using defined ikde.model, then compiles the model and stores DSO
 #' for fast running.
 #' 
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' data(lm.generated)
 #' 
 #' X <- lm.generated$X

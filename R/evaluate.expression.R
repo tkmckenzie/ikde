@@ -6,8 +6,8 @@
 #' @return The result of the Stan expression
 #' 
 #' @details
-#' First, all variables specified in ... are loaded into the environment. Then, all multipliction
-#' is replaced by %stan*% and the resulting expression is evaluated with eval.
+#' First, all variables specified in ... are loaded into the function environment. Then, all
+#' multipliction is replaced by %stan*% and the resulting expression is evaluated with eval.
 #' 
 #' @examples
 #' X <- matrix(1:9, nrow = 3)

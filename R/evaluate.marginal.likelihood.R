@@ -11,6 +11,7 @@
 #' marginal likelihood at the posterior mean.
 #' 
 #' @examples
+#' \donttest{
 #' data(lm.generated)
 #' 
 #' X <- lm.generated$X
@@ -21,16 +22,17 @@
 #'              X = list("matrix[N, k]", X),
 #'              y = list("vector[N]", y))
 #' parameters <- list(beta = "vector[k]",
-#'                    sigma = "real<lower=0>")
+#'                    sigma_sq = "real<lower=0>")
 #' model <- list(priors = c("beta ~ normal(0, 10)",
-#'                          "sigma ~ inv_gamma(1, 1)"),
-#'               likelihood = c("y ~ normal(X * beta, sigma)"))
+#'                          "sigma_sq ~ inv_gamma(1, 1)"),
+#'               likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq))"))
 #' 
 #' ikde.model <- define.model(data, parameters, model)
 #' 
 #' evaluate.marginal.likelihood(ikde.model) # Only an estimation, may not exactly match presented result
 #' # [1] -368.3207
-#'   
+#' }
+#'
 #' @export
 
 evaluate.marginal.likelihood <-

@@ -22,7 +22,7 @@ Takes a built ikde.model object, which contains model DSO,
 and fits the model using rstan::stan.
 }
 \examples{
-\dontrun{
+\donttest{
 data(lm.generated)
 
 X <- lm.generated$X
