@@ -157,6 +157,9 @@ gibbs.lm <-
     log.marginal <- log.lik + log.prior - log.posterior
     
     out <- list(samples = list(beta = beta.samples, tau = tau.samples),
+                log.prior = log.prior,
+                log.lik = log.lik,
+                log.posterior = log.posterior,
                 log.marginal = log.marginal,
                 priors = priors)
     return(out)

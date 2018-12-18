@@ -62,4 +62,13 @@ print(apply(gibbs.fit$samples$beta, 2, mean))
 print(mean(gibbs.fit$samples$tau))
 print(gibbs.fit$log.marginal)
 
+
+
+priors = list(beta.prior.mean = rep(0, 4),
+              beta.prior.var = 100 * diag(4),
+              tau.prior.shape = 1,
+              tau.prior.rate = 1)
+burn.iter = 1000
+sample.iter = 1000
+
 }
