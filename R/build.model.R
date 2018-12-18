@@ -32,10 +32,10 @@
 #'              X = list("matrix[N, k]", X),
 #'              y = list("vector[N]", y))
 #' parameters <- list(beta = "vector[k]",
-#'                    sigma = "real<lower=0>")
+#'                    sigma_sq = "real<lower=0>")
 #' model <- list(priors = c("beta ~ normal(0, 10)",
-#'                          "sigma ~ inv_gamma(1, 1)"),
-#'               likelihood = c("y ~ normal(X * beta, sigma)"))
+#'                          "sigma_sq ~ inv_gamma(1, 1)"),
+#'               likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq))"))
 #' 
 #' ikde.model <- define.model(data, parameters, model)
 #' ikde.model <- build.model(ikde.model)

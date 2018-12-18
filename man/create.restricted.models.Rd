@@ -8,6 +8,8 @@ create.restricted.models(ikde.model, eval.point)
 }
 \arguments{
 \item{ikde.model}{An object of class ikde.model, does not necessarily have to be built}
+
+\item{eval.point}{A list of parameter names and the point to evaluate densities}
 }
 \value{
 Returns a list of built ikde.models for each restricted model
@@ -33,10 +35,10 @@ data <- list(N = list("int<lower=1>", nrow(X)),
              X = list("matrix[N, k]", X),
              y = list("vector[N]", y))
 parameters <- list(beta = "vector[k]",
-                   sigma = "real<lower=0>")
+                   sigma_sq = "real<lower=0>")
 model <- list(priors = c("beta ~ normal(0, 10)",
-                         "sigma ~ inv_gamma(1, 1)"),
-              likelihood = c("y ~ normal(X * beta, sigma)"))
+                         "sigma_sq ~ inv_gamma(1, 1)"),
+              likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq))"))
 
 ikde.model <- define.model(data, parameters, model)
 eval.point <- list(beta = c(1, 2, 3, 4),

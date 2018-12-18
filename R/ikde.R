@@ -1,8 +1,14 @@
-#' Stan model marginal likelihood evaluation
+#' Iterative kernel density estimation
 #' 
-#' Evaluates marginal likelihood of Stan model at the posterior mean
+#' Evaluates marginal likelihood of Stan model at the posterior mean using iterative kernel density estimation
 #' 
 #' @param ikde.model An object of class ikde.model, does not necessarily have to be built
+#' @param burn.iter Number of warmup iterations
+#' @param sample.iter Number of sampling iterations
+#' @param control Control parameters used in the Markov chain. See ?rstan::stan for details.
+#' @param refresh How frequently should progress be reported, in numbers of iterations
+#' @param display.output Boolean indicating whether output from rstan::stan should be printed
+#' @param show.trace Boolean indicating whether to show trace plots
 #' 
 #' @return A real number indicating value of the log-marginal-likelihood  at the posterior mean
 #' 
@@ -29,13 +35,14 @@
 #' 
 #' ikde.model <- define.model(data, parameters, model)
 #' 
-#' evaluate.marginal.likelihood(ikde.model) # Only an estimation, may not exactly match presented result
-#' # [1] -368.3207
+#' # Only an estimation, may not exactly match presented result
+#' evaluate.marginal.likelihood(ikde.model)
+#' # [1] -388.9264
 #' }
 #'
 #' @export
 
-evaluate.marginal.likelihood <-
+ikde <-
   function(ikde.model, burn.iter = 1000, sample.iter = 1000, control = NULL, refresh = NULL, display.output = FALSE, show.trace = FALSE){
     if (class(ikde.model) != "ikde.model") stop("ikde.model must be of class \"ikde.model\".")
     if (!ikde.model$built) ikde.model <- build.model(ikde.model)

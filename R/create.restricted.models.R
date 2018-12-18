@@ -3,6 +3,7 @@
 #' Creates set of restricted models to be used for posterior density estimation
 #' 
 #' @param ikde.model An object of class ikde.model, does not necessarily have to be built
+#' @param eval.point A list of parameter names and the point to evaluate densities
 #' 
 #' @return Returns a list of built ikde.models for each restricted model
 #' 
@@ -24,10 +25,10 @@
 #'              X = list("matrix[N, k]", X),
 #'              y = list("vector[N]", y))
 #' parameters <- list(beta = "vector[k]",
-#'                    sigma = "real<lower=0>")
+#'                    sigma_sq = "real<lower=0>")
 #' model <- list(priors = c("beta ~ normal(0, 10)",
-#'                          "sigma ~ inv_gamma(1, 1)"),
-#'               likelihood = c("y ~ normal(X * beta, sigma)"))
+#'                          "sigma_sq ~ inv_gamma(1, 1)"),
+#'               likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq))"))
 #' 
 #' ikde.model <- define.model(data, parameters, model)
 #' eval.point <- list(beta = c(1, 2, 3, 4),
@@ -102,6 +103,7 @@ create.restricted.models <-
         if (vector.length.eval > 2){
           for (vector.index in 2:(vector.length.eval - 1)){
             partial.ikde.model$data$num_restrictions[[2]] <- vector.index #Only data is changed, no code, so don't need to re-build
+            partial.ikde.model$stan.data$num_restrictions <- vector.index #Must also update stan.data since not rebuilding
             partial.ikde.model$density.variable$value <- eval.point[[parameter]][vector.index + 1]
             model.list <- append(model.list, list(partial.ikde.model))
           }

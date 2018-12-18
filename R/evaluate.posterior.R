@@ -4,6 +4,12 @@
 #' 
 #' @param ikde.model An object of class ikde.model, does not necessarily have to be built
 #' @param eval.point A list of parameter names and the point to evaluate the posterior
+#' @param burn.iter Number of warmup iterations
+#' @param sample.iter Number of sampling iterations
+#' @param control Control parameters used in the Markov chain. See ?rstan::stan for details.
+#' @param refresh How frequently should progress be reported, in numbers of iterations
+#' @param display.output Boolean indicating whether output from rstan::stan should be printed
+#' @param show.trace Boolean indicating whether to show trace plots
 #' 
 #' @return A real number indicating value of the log-posterior at the specified evaluation point
 #' 
@@ -24,21 +30,22 @@
 #'              X = list("matrix[N, k]", X),
 #'              y = list("vector[N]", y))
 #' parameters <- list(beta = "vector[k]",
-#'                    sigma = "real<lower=0>")
+#'                    sigma_sq = "real<lower=0>")
 #' model <- list(priors = c("beta ~ normal(0, 10)",
-#'                          "sigma ~ inv_gamma(1, 1)"),
-#'               likelihood = c("y ~ normal(X * beta, sigma)"))
+#'                          "sigma_sq ~ inv_gamma(1, 1)"),
+#'               likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq))"))
 #' 
 #' ikde.model <- define.model(data, parameters, model)
 #' ikde.model <- build.model(ikde.model)
-#' stan.fit <- fit.model(ikde.model, 10000, 10000)
+#' stan.fit <- fit.model(ikde.model)
 #' stan.extract <- rstan::extract(stan.fit)
 #' 
 #' eval.point <- list(beta = apply(stan.extract$beta, 2, mean),
-#'                    sigma = mean(stan.extract$sigma))
+#'                    sigma_sq = mean(stan.extract$sigma_sq))
 #' 
-#' evaluate.posterior(ikde.model, eval.point, 5000, 5000) # Only an estimation, may not exactly match presented result
-#' # [1] -20.18479
+#' # Only an estimation, may not exactly match presented result
+#' evaluate.posterior(ikde.model, eval.point)
+#' # [1] -1.889711
 #' }
 #' 
 #' @export
@@ -53,7 +60,7 @@ evaluate.posterior <-
       stan.fit <- fit.model(ikde.model, burn.iter, sample.iter, 1, control, refresh, display.output)
       stan.extract <- rstan::extract(stan.fit)
       
-      if (show.trace) show(rstan::traceplot(stan.fit))
+      if (show.trace) methods::show(rstan::traceplot(stan.fit))
       
       density.variable <- ikde.model$density.variable$name
       if (length(dim(stan.extract[[density.variable]])) == 1){

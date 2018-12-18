@@ -1,8 +1,14 @@
 #' Fits Stan model
 #' 
-#' Uses a built ikde.model to draw samples from posterior distribution using Stan.
+#' Uses a built ikde.model to draw samples from posterior distribution using Stan
 #' 
 #' @param ikde.model An object of class ikde.model which has been built
+#' @param burn.iter Number of warmup iterations
+#' @param sample.iter Number of sampling iterations
+#' @param chains Number of independent chains to use
+#' @param control Control parameters used in the Markov chain. See ?rstan::stan for details.
+#' @param refresh How frequently should progress be reported, in numbers of iterations
+#' @param display.output Boolean indicating whether output from rstan::stan should be printed
 #' 
 #' @return An object of S4 class stanfit. See rstan::stan for more details.
 #' 
@@ -22,19 +28,22 @@
 #'              X = list("matrix[N, k]", X),
 #'              y = list("vector[N]", y))
 #' parameters <- list(beta = "vector[k]",
-#'                    sigma = "real<lower=0>")
+#'                    sigma_sq = "real<lower=0>")
 #' model <- list(priors = c("beta ~ normal(0, 10)",
-#'                          "sigma ~ inv_gamma(1, 1)"),
-#'               likelihood = c("y ~ normal(X * beta, sigma)"))
+#'                          "sigma_sq ~ inv_gamma(1, 1)"),
+#'               likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq))"))
 #' 
 #' ikde.model <- define.model(data, parameters, model)
 #' ikde.model <- build.model(ikde.model)
 #' stan.fit <- fit.model(ikde.model)
 #' stan.extract <- extract(stan.fit)
 #' 
-#' print(apply(stan.extract$beta, 2, mean)) # Only an estimation, may not exactly match presented result
-#' # [1] 3.236087 1.629510 4.496279 1.211404
+#' # Only an estimation, may not exactly match presented result
+#' print(apply(stan.extract$beta, 2, mean))
+#' # [1] 3.199021 1.620546 4.489716 1.226508
 #' }
+#'
+#' @import rstan
 #'
 #' @export
 

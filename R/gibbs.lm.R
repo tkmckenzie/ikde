@@ -4,12 +4,12 @@
 #' 
 #' @param X Matrix of input variables
 #' @param y Vector of output variables
-#' @param priors A named list of parameter priors; should include beta.prior.mean (vector), beta.prior.var (matrix), tau.prior.shape (scalar), and tau.prior.rate (scalar)
+#' @param priors A named list of parameter priors; should include beta.prior.mean (vector), beta.prior.var (matrix), sigma.sq.prior.shape (scalar), and sigma.sq.prior.rate (scalar)
 #' @param burn.iter Number of warmup iterations
 #' @param sample.iter Number of sampling iterations
 #' 
 #' @return Returns an list with the following elements
-#' \item{samples}{Named list of samples from the posterior, with elements "beta" and "tau"}
+#' \item{samples}{Named list of samples from the posterior, with elements "beta" and "sigma.sq"}
 #' \item{log.marginal}{Estimate of the model's log-marginal-likelihood}
 #' \item{priors}{List of priors used for the model}
 #' 
@@ -18,19 +18,19 @@
 #' Specifically, for a model of the form
 #' 
 #' \deqn{\beta\sim N(\mu_\beta, \Sigma_\beta)}
-#' \deqn{\tau\sim \Gamma(s_\tau, r_\tau)}
+#' \deqn{\sigma^2\sim \Gamma(s_\sigma, r_\sigma)}
 #' \deqn{y = X\beta + \varepsilon}
-#' \deqn{\varepsilon\sim N\left(0, \frac{1}{\sqrt{\tau}} I\right),}
+#' \deqn{\varepsilon\sim N\left(0, \frac{1}{\sqrt{\sigma^2}} I\right),}
 #' 
 #' Gibbs sampling can be performed using the conditional distributions
 #' 
-#' \deqn{\beta|\tau, X, y\sim N(\tilde\mu_\beta, \tilde\Sigma_\beta)}
-#' \deqn{\tau|\beta, X, y\sim \Gamma^{-1}\left(\frac{N}2 + s_\tau, \frac{e'e}2 + r_\tau\right),}
+#' \deqn{\beta|\sigma^2, X, y\sim N(\tilde\mu_\beta, \tilde\Sigma_\beta)}
+#' \deqn{\sigma^2|\beta, X, y\sim \Gamma^{-1}\left(\frac{N}2 + s_\sigma, \frac{e'e}2 + r_\sigma\right),}
 #' 
 #' where \eqn{N} is the number of observations and
 #' 
-#' \deqn{\tilde\Sigma_\beta = \tau X'X + \Sigma_\beta^{-1}}
-#' \deqn{\tilde\mu_\beta = \tilde\Sigma_\beta \left(\tau X'y + \Sigma_\beta^{-1}\mu_\beta)}
+#' \deqn{\tilde\Sigma_\beta = \frac{X'X}{\sigma^2} + \Sigma_\beta^{-1}}
+#' \deqn{\tilde\mu_\beta = \tilde\Sigma_\beta \left(\frac{X'y}{\sigma^2} + \Sigma_\beta^{-1}\mu_\beta\right)}
 #' \deqn{e = y - X\beta.}
 #' 
 #' @examples
@@ -42,21 +42,12 @@
 #' gibbs.fit <- gibbs.lm(X, y,
 #'                       priors = list(beta.prior.mean = rep(0, 4),
 #'                                     beta.prior.var = 100 * diag(4),
-#'                                     tau.prior.shape = 1,
-#'                                     tau.prior.rate = 1))
+#'                                     sigma.sq.prior.shape = 1,
+#'                                     sigma.sq.prior.rate = 1))
 #' 
-#' print(apply(gibbs.fit$samples$beta, 2, mean))
-#' print(mean(gibbs.fit$samples$tau))
-#' print(gibbs.fit$log.marginal)
-#' 
-#' 
-#' 
-#' priors = list(beta.prior.mean = rep(0, 4),
-#'               beta.prior.var = 100 * diag(4),
-#'               tau.prior.shape = 1,
-#'               tau.prior.rate = 1)
-#' burn.iter = 1000
-#' sample.iter = 1000
+#' print(apply(gibbs.fit$samples$beta, 2, mean)) # [1] 3.181184 1.643960 4.480879 1.213804
+#' print(mean(gibbs.fit$samples$sigma.sq)) # [1] 97.52314
+#' print(gibbs.fit$log.marginal) # [1] -389.001
 #' 
 #' @export
 
@@ -84,21 +75,21 @@ gibbs.lm <-
       if (any(eigen(priors$beta.prior.var)$values <= 0)) stop("beta.prior.var must be positive definite.")
     }
     
-    if (!("tau.prior.shape" %in% names(priors))){
-      priors$tau.prior.shape <- 1
+    if (!("sigma.sq.prior.shape" %in% names(priors))){
+      priors$sigma.sq.prior.shape <- 1
     } else{
-      if (priors$tau.prior.shape <= 0) stop("tau.prior.shape must be positive.")
+      if (priors$sigma.sq.prior.shape <= 0) stop("sigma.sq.prior.shape must be positive.")
     }
     
-    if (!("tau.prior.rate" %in% names(priors))){
-      priors$tau.prior.rate <- 1
+    if (!("sigma.sq.prior.rate" %in% names(priors))){
+      priors$sigma.sq.prior.rate <- 1
     } else{
-      if (priors$tau.prior.rate <= 0) stop("tau.prior.rate must be positive.")
+      if (priors$sigma.sq.prior.rate <= 0) stop("sigma.sq.prior.rate must be positive.")
     }
     
     # Initial values
     beta <- rep(0, k)
-    tau <- 1
+    sigma.sq <- 1
     
     # Parameters for sampling
     Sigma.beta.inv <- solve(priors$beta.prior.var)
@@ -109,54 +100,54 @@ gibbs.lm <-
     # Warmup
     for (i in 1:burn.iter){
       #beta
-      Sigma.beta.inv.post <- tau * X.X + Sigma.beta.inv
-      mu.beta.post <- solve(Sigma.beta.inv.post, (tau * X.y + Sigma.beta.inv.mu.beta))
+      Sigma.beta.inv.post <- X.X / sigma.sq + Sigma.beta.inv
+      mu.beta.post <- solve(Sigma.beta.inv.post, (X.y / sigma.sq + Sigma.beta.inv.mu.beta))
       beta <- mvtnorm::rmvnorm(1, mu.beta.post, solve(Sigma.beta.inv.post))[1,]
       
-      #tau
+      #sigma.sq
       e <- y - X %*% beta
-      tau <- rgamma(1, priors$tau.prior.shape + N / 2, sum(e^2) / 2 + priors$tau.prior.rate)
+      sigma.sq <- invgamma::rinvgamma(1, priors$sigma.sq.prior.shape + N / 2, sum(e^2) / 2 + priors$sigma.sq.prior.rate)
     }
     
     # Sampling
     beta.samples <- matrix(NA, nrow = sample.iter, ncol = k)
-    tau.samples <- rep(NA, sample.iter)
+    sigma.sq.samples <- rep(NA, sample.iter)
     for (i in 1:sample.iter){
       #beta
-      Sigma.beta.inv.post <- tau * X.X + Sigma.beta.inv
-      mu.beta.post <- solve(Sigma.beta.inv.post, (tau * X.y + Sigma.beta.inv.mu.beta))
+      Sigma.beta.inv.post <- X.X / sigma.sq + Sigma.beta.inv
+      mu.beta.post <- solve(Sigma.beta.inv.post, (X.y / sigma.sq + Sigma.beta.inv.mu.beta))
       beta <- mvtnorm::rmvnorm(1, mu.beta.post, solve(Sigma.beta.inv.post))[1,]
       
-      #tau
+      #sigma.sq
       e <- y - X %*% beta
-      tau <- rgamma(1, priors$tau.prior.shape + N / 2, sum(e^2) / 2 + priors$tau.prior.rate)
+      sigma.sq <- invgamma::rinvgamma(1, priors$sigma.sq.prior.shape + N / 2, sum(e^2) / 2 + priors$sigma.sq.prior.rate)
       
       #Store values
       beta.samples[i,] <- beta
-      tau.samples[i] <- tau
+      sigma.sq.samples[i] <- sigma.sq
     }
     
     # Marginal likelihood estimation
     beta.star <- apply(beta.samples, 2, mean)
-    tau.star <- mean(tau.samples)
-    tau.posterior <- rep(NA, sample.iter)
-    #Start with density of tau|beta[s]
+    sigma.sq.star <- mean(sigma.sq.samples)
+    sigma.sq.posterior <- rep(NA, sample.iter)
+    #Start with density of sigma.sq|beta[s]
     for (i in 1:sample.iter){
       e <- y - X %*% beta.samples[i,]
-      tau.posterior[i] <- dgamma(tau.star, priors$tau.prior.shape + N / 2, sum(e^2) / 2 + priors$tau.prior.rate)
+      sigma.sq.posterior[i] <- invgamma::dinvgamma(sigma.sq.star, priors$sigma.sq.prior.shape + N / 2, sum(e^2) / 2 + priors$sigma.sq.prior.rate)
     }
-    #Now do density of beta|tau*
-    Sigma.beta.inv.star <- tau.star * X.X + Sigma.beta.inv
-    mu.beta.star <- solve(Sigma.beta.inv.star, (tau.star * X.y + Sigma.beta.inv.mu.beta))
+    #Now do density of beta|sigma.sq*
+    Sigma.beta.inv.star <- X.X / sigma.sq.star + Sigma.beta.inv
+    mu.beta.star <- solve(Sigma.beta.inv.star, (X.y / sigma.sq.star + Sigma.beta.inv.mu.beta))
     log.beta.posterior <- mvtnorm::dmvnorm(beta.star, mu.beta.star, solve(Sigma.beta.inv.star), log = TRUE)
     #Wrap everything together
-    log.posterior <- log(mean(tau.posterior)) + log.beta.posterior
+    log.posterior <- log(mean(sigma.sq.posterior)) + log.beta.posterior
     log.prior <- mvtnorm::dmvnorm(beta.star, priors$beta.prior.mean, priors$beta.prior.var, log = TRUE) +
-      dgamma(tau.star, priors$tau.prior.shape, priors$tau.prior.rate, log = TRUE)
-    log.lik <- sum(dnorm(y, X %*% beta.star, 1 / sqrt(tau.star), log = TRUE))
+      invgamma::dinvgamma(sigma.sq.star, priors$sigma.sq.prior.shape, priors$sigma.sq.prior.rate, log = TRUE)
+    log.lik <- sum(stats::dnorm(y, X %*% beta.star, sqrt(sigma.sq.star), log = TRUE))
     log.marginal <- log.lik + log.prior - log.posterior
     
-    out <- list(samples = list(beta = beta.samples, tau = tau.samples),
+    out <- list(samples = list(beta = beta.samples, sigma.sq = sigma.sq.samples),
                 log.prior = log.prior,
                 log.lik = log.lik,
                 log.posterior = log.posterior,

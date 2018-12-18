@@ -22,20 +22,20 @@
 #'              X = list("matrix[N, k]", X),
 #'              y = list("vector[N]", y))
 #' parameters <- list(beta = "vector[k]",
-#'                    sigma = "real<lower=0>")
+#'                    sigma_sq = "real<lower=0>")
 #' model <- list(priors = c("beta ~ normal(0, 10)",
-#'                          "sigma ~ inv_gamma(1, 1)"),
-#'               likelihood = c("y ~ normal(X * beta, sigma)"))
+#'                          "sigma_sq ~ inv_gamma(1, 1)"),
+#'               likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq))"))
 #' 
 #' ikde.model <- define.model(data, parameters, model)
 #' 
 #' statement <- ikde.model$model$likelihood[1]
-#' eval.point <- list(beta = c(1, 2, 3, 4), sigma = 5)
+#' eval.point <- list(beta = c(1, 2, 3, 4), sigma_sq = 5)
 #' 
 #' # These results match:
 #' evaluate.statement(statement, ikde.model, eval.point)
-#' sum(dnorm(y, mean = X %*% eval.point$beta, sd = eval.point$sigma, log = TRUE))
-#' # [1] -1054.093
+#' sum(dnorm(y, mean = X %*% eval.point$beta, sd = sqrt(eval.point$sigma_sq), log = TRUE))
+#' # [1] -4178.641
 #'   
 #' @export
 

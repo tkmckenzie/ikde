@@ -10,12 +10,24 @@ fit.model(ikde.model, burn.iter = 1000, sample.iter = 1000,
 }
 \arguments{
 \item{ikde.model}{An object of class ikde.model which has been built}
+
+\item{burn.iter}{Number of warmup iterations}
+
+\item{sample.iter}{Number of sampling iterations}
+
+\item{chains}{Number of independent chains to use}
+
+\item{control}{Control parameters used in the Markov chain. See ?rstan::stan for details.}
+
+\item{refresh}{How frequently should progress be reported, in numbers of iterations}
+
+\item{display.output}{Boolean indicating whether output from rstan::stan should be printed}
 }
 \value{
 An object of S4 class stanfit. See rstan::stan for more details.
 }
 \description{
-Uses a built ikde.model to draw samples from posterior distribution using Stan.
+Uses a built ikde.model to draw samples from posterior distribution using Stan
 }
 \details{
 Takes a built ikde.model object, which contains model DSO,
@@ -33,18 +45,19 @@ data <- list(N = list("int<lower=1>", nrow(X)),
              X = list("matrix[N, k]", X),
              y = list("vector[N]", y))
 parameters <- list(beta = "vector[k]",
-                   sigma = "real<lower=0>")
+                   sigma_sq = "real<lower=0>")
 model <- list(priors = c("beta ~ normal(0, 10)",
-                         "sigma ~ inv_gamma(1, 1)"),
-              likelihood = c("y ~ normal(X * beta, sigma)"))
+                         "sigma_sq ~ inv_gamma(1, 1)"),
+              likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq))"))
 
 ikde.model <- define.model(data, parameters, model)
 ikde.model <- build.model(ikde.model)
 stan.fit <- fit.model(ikde.model)
 stan.extract <- extract(stan.fit)
 
-print(apply(stan.extract$beta, 2, mean)) # Only an estimation, may not exactly match presented result
-# [1] 3.236087 1.629510 4.496279 1.211404
+# Only an estimation, may not exactly match presented result
+print(apply(stan.extract$beta, 2, mean))
+# [1] 3.199021 1.620546 4.489716 1.226508
 }
 
 }

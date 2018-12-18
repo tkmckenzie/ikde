@@ -11,7 +11,7 @@ gibbs.lm(X, y, priors = list(), burn.iter = 1000, sample.iter = 1000)
 
 \item{y}{Vector of output variables}
 
-\item{priors}{A named list of parameter priors; should include beta.prior.mean (vector), beta.prior.var (matrix), tau.prior.shape (scalar), and tau.prior.rate (scalar)}
+\item{priors}{A named list of parameter priors; should include beta.prior.mean (vector), beta.prior.var (matrix), sigma.sq.prior.shape (scalar), and sigma.sq.prior.rate (scalar)}
 
 \item{burn.iter}{Number of warmup iterations}
 
@@ -19,7 +19,7 @@ gibbs.lm(X, y, priors = list(), burn.iter = 1000, sample.iter = 1000)
 }
 \value{
 Returns an list with the following elements
-\item{samples}{Named list of samples from the posterior, with elements "beta" and "tau"}
+\item{samples}{Named list of samples from the posterior, with elements "beta" and "sigma.sq"}
 \item{log.marginal}{Estimate of the model's log-marginal-likelihood}
 \item{priors}{List of priors used for the model}
 }
@@ -31,19 +31,19 @@ Uses a standard formulation of a linear model from which a Gibbs sampler can be 
 Specifically, for a model of the form
 
 \deqn{\beta\sim N(\mu_\beta, \Sigma_\beta)}
-\deqn{\tau\sim \Gamma(s_\tau, r_\tau)}
+\deqn{\sigma^2\sim \Gamma(s_\sigma, r_\sigma)}
 \deqn{y = X\beta + \varepsilon}
-\deqn{\varepsilon\sim N\left(0, \frac{1}{\sqrt{\tau}} I\right),}
+\deqn{\varepsilon\sim N\left(0, \frac{1}{\sqrt{\sigma^2}} I\right),}
 
 Gibbs sampling can be performed using the conditional distributions
 
-\deqn{\beta|\tau, X, y\sim N(\tilde\mu_\beta, \tilde\Sigma_\beta)}
-\deqn{\tau|\beta, X, y\sim \Gamma^{-1}\left(\frac{N}2 + s_\tau, \frac{e'e}2 + r_\tau\right),}
+\deqn{\beta|\sigma^2, X, y\sim N(\tilde\mu_\beta, \tilde\Sigma_\beta)}
+\deqn{\sigma^2|\beta, X, y\sim \Gamma^{-1}\left(\frac{N}2 + s_\sigma, \frac{e'e}2 + r_\sigma\right),}
 
 where \eqn{N} is the number of observations and
 
-\deqn{\tilde\Sigma_\beta = \tau X'X + \Sigma_\beta^{-1}}
-\deqn{\tilde\mu_\beta = \tilde\Sigma_\beta \left(\tau X'y + \Sigma_\beta^{-1}\mu_\beta)}
+\deqn{\tilde\Sigma_\beta = \frac{X'X}{\sigma^2} + \Sigma_\beta^{-1}}
+\deqn{\tilde\mu_\beta = \tilde\Sigma_\beta \left(\frac{X'y}{\sigma^2} + \Sigma_\beta^{-1}\mu_\beta\right)}
 \deqn{e = y - X\beta.}
 }
 \examples{
@@ -55,20 +55,11 @@ y <- lm.generated$y
 gibbs.fit <- gibbs.lm(X, y,
                       priors = list(beta.prior.mean = rep(0, 4),
                                     beta.prior.var = 100 * diag(4),
-                                    tau.prior.shape = 1,
-                                    tau.prior.rate = 1))
+                                    sigma.sq.prior.shape = 1,
+                                    sigma.sq.prior.rate = 1))
 
-print(apply(gibbs.fit$samples$beta, 2, mean))
-print(mean(gibbs.fit$samples$tau))
-print(gibbs.fit$log.marginal)
-
-
-
-priors = list(beta.prior.mean = rep(0, 4),
-              beta.prior.var = 100 * diag(4),
-              tau.prior.shape = 1,
-              tau.prior.rate = 1)
-burn.iter = 1000
-sample.iter = 1000
+print(apply(gibbs.fit$samples$beta, 2, mean)) # [1] 3.181184 1.643960 4.480879 1.213804
+print(mean(gibbs.fit$samples$sigma.sq)) # [1] 97.52314
+print(gibbs.fit$log.marginal) # [1] -389.001
 
 }
