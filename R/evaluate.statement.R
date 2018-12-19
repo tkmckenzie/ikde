@@ -53,14 +53,16 @@ evaluate.statement <-
     
     #Resolve variables in lhs
     for (data.var in names(ikde.model$data)){
-      lhs <- gsub(data.var, paste0("ikde.model$data$", data.var, "[[2]]"), lhs)
+      regex <- paste0("(?<![0-9A-Za-z\\.\\$_]{1})", data.var, "(?![0-9A-Za-z\\.\\$_]{1})")
+      lhs <- gsub(regex, paste0("ikde.model$data$", data.var, "[[2]]"), lhs, perl = TRUE)
     }
     for (eval.var in names(eval.point)){
-      lhs <- gsub(eval.var, paste0("eval.point$", eval.var), lhs)
+      regex <- paste0("(?<![0-9A-Za-z\\.\\$_]{1})", eval.var, "(?![0-9A-Za-z\\.\\$_]{1})")
+      lhs <- gsub(regex, paste0("eval.point$", eval.var), lhs, perl = TRUE)
     }
     
     #Extract distribution and map to R function
-    distribution.stan <- gsub("\\([0-9A-Za-z\\.,\\*/\\+-\\^_\\(\\)]+\\)$", "", rhs)
+    distribution.stan <- gsub("\\([0-9A-Za-z\\.,\\*/\\+\\-\\^_\\(\\)]+\\)$", "", rhs)
     
     if (!(distribution.stan %in% names(stan.dist.to.r.dist))) stop(paste0(distribution.stan, " distribution not currently supported."))
     distribution.r <- stan.dist.to.r.dist[[distribution.stan]]$distribution.r
@@ -70,10 +72,12 @@ evaluate.statement <-
     
     #Resolve variables in distribution arguments
     for (data.var in names(ikde.model$data)){
-      arg.values <- gsub(data.var, paste0("ikde.model$data$", data.var, "[[2]]"), arg.values)
+      regex <- paste0("(?<![0-9A-Za-z\\.\\$_]{1})", data.var, "(?![0-9A-Za-z\\.\\$_]{1})")
+      arg.values <- gsub(regex, paste0("ikde.model$data$", data.var, "[[2]]"), arg.values, perl = TRUE)
     }
     for (eval.var in names(eval.point)){
-      arg.values <- gsub(eval.var, paste0("eval.point$", eval.var), arg.values)
+      regex <- paste0("(?<![0-9A-Za-z\\.\\$_]{1})", eval.var, "(?![0-9A-Za-z\\.\\$_]{1})")
+      arg.values <- gsub(regex, paste0("eval.point$", eval.var), arg.values, perl = TRUE)
     }
     
     #Evaluate distribution arguments

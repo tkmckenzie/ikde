@@ -36,8 +36,21 @@
 #' ikde.model <- define.model(data, parameters, model)
 #' 
 #' # Only an estimation, may not exactly match presented result
-#' evaluate.marginal.likelihood(ikde.model)
-#' # [1] -388.9264
+#' # bridge(ikde.model)
+#' # [1] 
+#' 
+#' 
+#' 
+#' burn.iter = 1000
+#' sample.iter = 1000
+#' control = NULL
+#' refresh = NULL
+#' display.output = FALSE
+#' show.trace = FALSE
+#' 
+#' parameter.num = 1
+#' parameter.type = "vector<lower = 0, upper = N * k>[N]"
+#' 
 #' }
 #'
 #' @export
@@ -63,7 +76,38 @@ bridge <-
     }
     
     #Form proposal distributions
-    for 
+    for (parameter.num in 1:num.parameters){
+      parameter <- names(ikde.model$parameters)[parameter.num]
+      parameter.type <- ikde.model$parameters[[parameter]]
+      parameter.type <- gsub(" ", "", parameter.type)
+      parameter.restriction.pos <- gregexpr("<[0-9A-Za-z\\.,\\*/\\+\\-\\^_=]+>", parameter.type)[[1]]
+      parameter.restriction <- substr(parameter.type, as.numeric(parameter.restriction.pos), as.numeric(parameter.restriction.pos) + attr(parameter.restriction.pos, "match.length") - 1)
+      
+      if (grepl("lower=", parameter.restriction)){
+        lower.limit.pos <- gregexpr("(?<=lower=)[0-9A-Za-z\\.\\*/\\+\\-\\^_]+(?=[,>]+)", parameter.restriction, perl = TRUE)[[1]]
+        lower.limit <- substr(parameter.restriction, as.numeric(lower.limit.pos), as.numeric(lower.limit.pos) + attr(lower.limit.pos, "match.length") - 1)
+        for (data.var in names(ikde.model$data)){
+          regex <- paste0("(?<![0-9A-Za-z\\.\\$_]{1})", data.var, "(?![0-9A-Za-z\\.\\$_]{1})")
+          lower.limit <- gsub(regex, paste0("ikde.model$data$", data.var, "[[2]]"), lower.limit, perl = TRUE)
+        }
+        lower.limit <- evaluate.expression(lower.limit, ikde.model = ikde.model)
+        
+        if (grepl("upper=", parameter.restriction)){
+          upper.limit.pos <- gregexpr("(?<=upper=)[0-9A-Za-z\\.\\*/\\+\\-\\^_]+(?=[,>]+)", parameter.restriction, perl = TRUE)[[1]]
+          upper.limit <- substr(parameter.restriction, as.numeric(upper.limit.pos), as.numeric(upper.limit.pos) + attr(upper.limit.pos, "match.length") - 1)
+          for (data.var in names(ikde.model$data)){
+            regex <- paste0("(?<![0-9A-Za-z\\.\\$_]{1})", data.var, "(?![0-9A-Za-z\\.\\$_]{1})")
+            upper.limit <- gsub(regex, paste0("ikde.model$data$", data.var, "[[2]]"), upper.limit, perl = TRUE)
+          }
+          upper.limit <- evaluate.expression(upper.limit, ikde.model = ikde.model)
+          
+          #Use sigmoid function to transform samples from a MVN
+          #Use delta method to derive variance of MVN
+          #Want to generate X ~ MVN(mu, Sigma) such that
+          #  * 
+        }
+      }
+    }
     
     return()
   }

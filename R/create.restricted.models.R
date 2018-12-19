@@ -60,15 +60,16 @@ create.restricted.models <-
       parameter <- names(ikde.model$parameters)[parameter.index]
       parameter.type <- ikde.model$parameters[[parameter]]
       parameter.type <- gsub(" ", "", parameter.type)
-      parameter.restriction.pos <- gregexpr("<[0-9A-Za-z\\.,\\*/\\+-\\^_=]+>", parameter.type)[[1]]
+      parameter.restriction.pos <- gregexpr("<[0-9A-Za-z\\.,\\*/\\+\\-\\^_=]+>", parameter.type)[[1]]
       parameter.restriction <- substr(parameter.type, as.numeric(parameter.restriction.pos), as.numeric(parameter.restriction.pos) + attr(parameter.restriction.pos, "match.length") - 1)
       if (grepl("vector", parameter.type)){
         #Only need to build two models: One with partially restricted vector and one with fully restricted vector (if this is not the last parameter in the model)
-        vector.length.pos <- gregexpr("(?<=vector\\[)[0-9A-Za-z\\.,\\*/\\+-\\^_]+(?=\\])", parameter.type, perl = TRUE)[[1]]
+        vector.length.pos <- gregexpr("(?<=vector\\[)[0-9A-Za-z\\.,\\*/\\+\\-\\^_]+(?=\\])", parameter.type, perl = TRUE)[[1]]
         vector.length <- substr(parameter.type, as.numeric(vector.length.pos), as.numeric(vector.length.pos) + attr(vector.length.pos, "match.length") - 1)
         vector.length.eval <- vector.length
         for (data.var in names(ikde.model$data)){
-          vector.length.eval <- gsub(data.var, paste0("ikde.model$data$", data.var, "[[2]]"), vector.length.eval)
+          regex <- paste0("(?<![0-9A-Za-z\\.\\$_]{1})", data.var, "(?![0-9A-Za-z\\.\\$_]{1})")
+          vector.length.eval <- gsub(regex, paste0("ikde.model$data$", data.var, "[[2]]"), vector.length.eval, perl = TRUE)
         }
         vector.length.eval <- evaluate.expression(vector.length.eval, ikde.model = ikde.model, eval.point = eval.point)
         
