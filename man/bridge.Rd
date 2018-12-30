@@ -4,7 +4,7 @@
 \alias{bridge}
 \title{Bridge sampling}
 \usage{
-bridge(ikde.model, burn.iter = 1000, sample.iter = 1000,
+bridge(ikde.model, burn.iter = 1000, sample.iter = 1000, tol = 1e-08,
   control = NULL, refresh = NULL, display.output = FALSE,
   show.trace = FALSE)
 }
@@ -53,21 +53,8 @@ model <- list(priors = c("beta ~ normal(0, 10)",
 ikde.model <- define.model(data, parameters, model)
 
 # Only an estimation, may not exactly match presented result
-# bridge(ikde.model)
-# [1] 
-
-
-
-burn.iter = 1000
-sample.iter = 1000
-control = NULL
-refresh = NULL
-display.output = FALSE
-show.trace = FALSE
-
-parameter.num = 1
-parameter.type = "vector<lower = 0, upper = N * k>[N]"
-
+bridge(ikde.model)
+# [1] -389.0141
 }
 
 }

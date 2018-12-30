@@ -5,7 +5,7 @@
 #' @param upper.limit Upper limit of the sigmoid function; defaults to 1
 #' 
 #' @details 
-#' Evaluates the sigmoid function (1 / (1 + exp(-x))) and its gradient (exp(-x) / (1 + exp(-x))^2).
+#' Evaluates the sigmoid function ((upper.bound - lower.bound) / (1 + exp(-x)) + lower.bound) and its gradient ((upper.bound - lower.bound) * exp(-x) / (1 + exp(-x))^2).
 #' 
 #' @return Returns a list with two elements, each with the same number of elements as x
 #' \item{value}{Value of the sigmoid function at x}
@@ -19,7 +19,6 @@
 #' plot(sigmoid.result$gradient ~ x, type = "l")
 #' 
 #' @export
-#' @rdname stan.multiply
 
 sigmoid <-
   function(x, lower.limit = 0, upper.limit = 1){
