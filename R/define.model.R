@@ -2,11 +2,11 @@
 #' 
 #' Defines Stan model and stores input data
 #' 
-#' @param data A list of data passed to the Stan program. Should be of the form list(data.name = list(data.type, data.object)).
-#' @param parameters A list of parameters used in the Stan program. Should be of the form list(parameter.name = parameter.type).
+#' @param data A list of data passed to the Stan program. Should be of the form list(data.name = list(type = string, dim = number/string (e.g., "[N]"), value = data.object)).
+#' @param parameters A list of parameters used in the Stan program. Should be of the form list(parameter.name = list(type = string, dim = number/string)).
 #' @param model A list describing the Stan model. Should be a list with components "priors" and "likelihood".
-#' @param transformed.data A list describing data transformations for the Stan program to perform. Should be of the form list(variable.name = list(variable.type, variable.expression)).
-#' @param transformed.parameters A list describing parameter transformations for the Stan program to perform. Should be of the form list(variable.name = list(variable.type, variable.expression)).
+#' @param transformed.data A list describing data transformations for the Stan program to perform. Should be of the form list(variable.name = list(type = string, dim = number/string, expression = string)).
+#' @param transformed.parameters A list describing parameter transformations for the Stan program to perform. Should be of the form list(variable.name = list(type = string, dim = string, expression = string)).
 #' 
 #' @return Returns an ikde.model object with the following elements
 #' \item{data}{A list of data passed to the Stan program}
