@@ -6,7 +6,8 @@
 #' 
 #' @export
 
-stan.dist.to.r.dist <- list("binomial" = list(distribution.r = "stats::dbinom", args = c("size", "prob")),
+stan.dist.to.r.dist <- list("bernoulli" = list(distribution.r = "ikde::dbern", args = c("prob")),
+                            "binomial" = list(distribution.r = "stats::dbinom", args = c("size", "prob")),
                             "poisson" = list(distribution.r = "stats::dpois", args = c("lambda")),
                             "normal" = list(distribution.r = "stats::dnorm", args = c("mean", "sd")),
                             "lognormal" = list(distribution.r = "stats::dlnorm", args = c("meanlog", "sdlog")),

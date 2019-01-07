@@ -4,7 +4,7 @@
 \name{stan.dist.to.r.dist}
 \alias{stan.dist.to.r.dist}
 \title{Mapping between Stan and R distribution functions}
-\format{An object of class \code{list} of length 12.}
+\format{An object of class \code{list} of length 13.}
 \usage{
 stan.dist.to.r.dist
 }

@@ -4,7 +4,7 @@
 \name{stan.operator.to.r.operator}
 \alias{stan.operator.to.r.operator}
 \title{Mapping between Stan and R operators}
-\format{An object of class \code{list} of length 3.}
+\format{An object of class \code{list} of length 4.}
 \usage{
 stan.operator.to.r.operator
 }
