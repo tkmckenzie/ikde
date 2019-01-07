@@ -29,7 +29,7 @@
 #' X <- lm.generated$X
 #' y <- lm.generated$y
 #' 
-#' data <- list(N = list("int<lower=1>", nrow(X)),
+#' data <- list(N = list(type = "int<lower=1>", nrow(X)),
 #'              k = list("int<lower=1>", ncol(X)),
 #'              X = list("matrix[N, k]", X),
 #'              y = list("vector[N]", y))
