@@ -20,15 +20,15 @@
 #' X <- lm.generated$X
 #' y <- lm.generated$y
 #' 
-#' data <- list(N = list("int<lower=1>", nrow(X)),
-#'              k = list("int<lower=1>", ncol(X)),
-#'              X = list("matrix[N, k]", X),
-#'              y = list("vector[N]", y))
-#' parameters <- list(beta = "vector[k]",
-#'                    sigma_sq = "real<lower=0>")
-#' model <- list(priors = c("beta ~ normal(0, 10)",
-#'                          "sigma_sq ~ inv_gamma(1, 1)"),
-#'               likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq))"))
+#' data <- list(N = list(type = "int<lower=1>", dim = 1, value = nrow(X)),
+#'              k = list(type = "int<lower=1>", dim = 1, value = ncol(X)),
+#'              X = list(type = "matrix", dim = "[N, k]", value = X),
+#'              y = list(type = "vector", dim = "[N]", value = y))
+#' parameters <- list(beta = list(type = "vector", dim = "[k]"),
+#'                    sigma_sq = list(type = "real<lower=0>", dim = 1))
+#' model <- list(priors = c("beta ~ normal(0, 10);",
+#'                          "sigma_sq ~ inv_gamma(1, 1);"),
+#'               likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq));"))
 #' 
 #' ikde.model <- define.model(data, parameters, model)
 #' eval.point <- list(beta = c(1, 2, 3, 4),
@@ -58,8 +58,9 @@ create.restricted.models <-
     num.parameters <- length(ikde.model$parameters)
     for (parameter.index in 1:num.parameters){
       parameter <- names(ikde.model$parameters)[parameter.index]
-      parameter.type <- ikde.model$parameters[[parameter]]
+      parameter.type <- ikde.model$parameters[[parameter]]$type
       parameter.type <- gsub(" ", "", parameter.type)
+      parameter.dim <- ikde.model$parameters[[parameter]]$dim
       parameter.restriction.pos <- gregexpr("<[0-9A-Za-z\\.,\\*/\\+\\-\\^_=]+>", parameter.type)[[1]]
       parameter.restriction <- substr(parameter.type, as.numeric(parameter.restriction.pos), as.numeric(parameter.restriction.pos) + attr(parameter.restriction.pos, "match.length") - 1)
       if (grepl("vector", parameter.type)){
@@ -81,11 +82,12 @@ create.restricted.models <-
         #Create and build partially restricted model
         partial.ikde.model <- current.ikde.model
         partial.ikde.model$parameters[[parameter]] <- NULL #Remove from parameters list
-        partial.ikde.model$data$num_restrictions <- list(paste0("int<lower=1,upper=", vector.length, "-1>"), 1) #Can change number of restrictions in ML estimation
-        partial.ikde.model$data[[parameter.restr.all]] <- list(paste0("vector", parameter.restriction, "[", vector.length, "]"), as.array(eval.point[[parameter]])) #Add restricted values to data
-        partial.ikde.model$transformed.data[[parameter.restr]] <- list(paste0("vector", parameter.restriction, "[num_restrictions]"), paste0(parameter.restr, " = head(", parameter.restr.all, ", num_restrictions)"))
+        partial.ikde.model$data$num_restrictions <- list(type = paste0("int<lower=1,upper=", vector.length, "-1>"), dim = 1, value = 1) #Can change number of restrictions in ML estimation
+        partial.ikde.model$data[[parameter.restr.all]] <- list(type = paste0("vector", parameter.restriction), dim = paste0("[", vector.length, "]"), value = as.array(eval.point[[parameter]])) #Add restricted values to data
+        partial.ikde.model$transformed.data[[parameter.restr]] <- list(type = paste0("vector", parameter.restriction), dim = "[num_restrictions]", expression = paste0(parameter.restr, " = head(", parameter.restr.all, ", num_restrictions);"))
         partial.ikde.model$parameters[[parameter.unrestr]] <- paste0("vector", parameter.restriction, "[", vector.length, "-num_restrictions]") #Add unrestricted values to parameters
-        partial.ikde.model$transformed.parameters <- append(eval(parse(text = paste0("list(", parameter, " = list(\"vector", parameter.restriction, "[", vector.length, "]\", \"", parameter, " = append_row(", parameter.restr, ", ", parameter.unrestr, ")\"))"))), partial.ikde.model$transformed.parameters)
+        partial.ikde.model$transformed.parameters <- append(eval(parse(text = paste0("list(", parameter, " = list(type = \"vector\"", parameter.restriction, ", dim = \"[", vector.length, "]\", expression = \"", parameter, " = append_row(", parameter.restr, ", ", parameter.unrestr, ");\"))"))), partial.ikde.model$transformed.parameters)
+        #####  ENDED HERE #####
         for (statement.num in 1:length(partial.ikde.model$model$priors)){
           statement <- partial.ikde.model$model$priors[statement.num]
           lhs <- gsub(" ", "", strsplit(statement, "~")[[1]][1])
@@ -103,7 +105,7 @@ create.restricted.models <-
         
         if (vector.length.eval > 2){
           for (vector.index in 2:(vector.length.eval - 1)){
-            partial.ikde.model$data$num_restrictions[[2]] <- vector.index #Only data is changed, no code, so don't need to re-build
+            partial.ikde.model$data$num_restrictions$value <- vector.index #Only data is changed, no code changes, so don't need to re-build
             partial.ikde.model$stan.data$num_restrictions <- vector.index #Must also update stan.data since not rebuilding
             partial.ikde.model$density.variable$value <- eval.point[[parameter]][vector.index + 1]
             model.list <- append(model.list, list(partial.ikde.model))
@@ -114,7 +116,7 @@ create.restricted.models <-
         #Update current.ikde.model for next parameter at the same time
         if (parameter.index < num.parameters){
           current.ikde.model$parameters[[parameter]] <- NULL #Remove from parameters list
-          current.ikde.model$data[[parameter]] <- list(parameter.type, eval.point[[parameter]]) #Add parameter to data
+          current.ikde.model$data[[parameter]] <- list(type = parameter.type, dim = parameter.dim, value = eval.point[[parameter]]) #Add parameter to data
           
           prior.rm.index <- c()
           for (statement.num in 1:length(current.ikde.model$model$priors)){
@@ -136,7 +138,7 @@ create.restricted.models <-
       } else if (grepl("real", parameter.type)){
         if (parameter.index < num.parameters){
           current.ikde.model$parameters[[parameter]] <- NULL #Remove from parameters list
-          current.ikde.model$data[[parameter]] <- list(parameter.type, eval.point[[parameter]]) #Add parameter to data
+          current.ikde.model$data[[parameter]] <- list(type = parameter.type, dim = 1, value = eval.point[[parameter]]) #Add parameter to data; note that real arrays are not supported, use vector instead
           
           prior.rm.index <- c()
           for (statement.num in 1:length(current.ikde.model$model$priors)){

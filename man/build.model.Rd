@@ -36,15 +36,15 @@ data(lm.generated)
 X <- lm.generated$X
 y <- lm.generated$y
 
-data <- list(N = list("int<lower=1>", nrow(X)),
-             k = list("int<lower=1>", ncol(X)),
-             X = list("matrix[N, k]", X),
-             y = list("vector[N]", y))
-parameters <- list(beta = "vector[k]",
-                   sigma_sq = "real<lower=0>")
-model <- list(priors = c("beta ~ normal(0, 10)",
-                         "sigma_sq ~ inv_gamma(1, 1)"),
-              likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq))"))
+data <- list(N = list(type = "int<lower=1>", dim = 1, value = nrow(X)),
+             k = list(type = "int<lower=1>", dim = 1, value = ncol(X)),
+             X = list(type = "matrix", dim = "[N, k]", value = X),
+             y = list(type = "vector", dim = "[N]", value = y))
+parameters <- list(beta = list(type = "vector", dim = "[k]"),
+                   sigma_sq = list(type = "real<lower=0>", dim = 1))
+model <- list(priors = c("beta ~ normal(0, 10);",
+                         "sigma_sq ~ inv_gamma(1, 1);"),
+              likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq));"))
 
 ikde.model <- define.model(data, parameters, model)
 ikde.model <- build.model(ikde.model)

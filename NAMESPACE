@@ -3,6 +3,7 @@
 export("%stan*%")
 export(bridge)
 export(build.model)
+export(create.declaration)
 export(create.restricted.models)
 export(dbern)
 export(define.model)

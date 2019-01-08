@@ -27,15 +27,15 @@
 #' X <- lm.generated$X
 #' y <- lm.generated$y
 #' 
-#' data <- list(N = list("int<lower=1>", nrow(X)),
-#'              k = list("int<lower=1>", ncol(X)),
-#'              X = list("matrix[N, k]", X),
-#'              y = list("vector[N]", y))
-#' parameters <- list(beta = "vector[k]",
-#'                    sigma_sq = "real<lower=0>")
-#' model <- list(priors = c("beta ~ normal(0, 10)",
-#'                          "sigma_sq ~ inv_gamma(1, 1)"),
-#'               likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq))"))
+#' data <- list(N = list(type = "int<lower=1>", dim = 1, value = nrow(X)),
+#'              k = list(type = "int<lower=1>", dim = 1, value = ncol(X)),
+#'              X = list(type = "matrix", dim = "[N, k]", value = X),
+#'              y = list(type = "vector", dim = "[N]", value = y))
+#' parameters <- list(beta = list(type = "vector", dim = "[k]"),
+#'                    sigma_sq = list(type = "real<lower=0>", dim = 1))
+#' model <- list(priors = c("beta ~ normal(0, 10);",
+#'                          "sigma_sq ~ inv_gamma(1, 1);"),
+#'               likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq));"))
 #' 
 #' ikde.model <- define.model(data, parameters, model)
 #' ikde.model <- build.model(ikde.model)
@@ -60,13 +60,9 @@ build.model <-
     stan.data = list()
     for (data.key in names(data)){
       if (class(data[[data.key]]) != "list") stop(paste0("data[[", data.key, "]] is not a list."))
-      if (sort(names(data[[data.key]])) != c("dim", "type", "value")) stop(paste0("data[[", data.key, "]] must only contain elements type, dim, and value."))
-      stan.code <- paste0(stan.code, "\t", data[[data.key]]$type, " ", ";\n")
-      data.dim <- data[[data.key]]$dim
-      if (is.numeric(data.dim)){
-        
-      }
-      stan.data[[data.key]] <- data[[data.key]][[2]]
+      if (any(sort(names(data[[data.key]])) != c("dim", "type", "value"))) stop(paste0("data[[", data.key, "]] must only contain elements type, dim, and value."))
+      stan.code <- paste0(stan.code, "\t", create.declaration(data.key, data[[data.key]]$type, data[[data.key]]$dim), "\n")
+      stan.data[[data.key]] <- data[[data.key]]$value
     }
     stan.code <- paste0(stan.code, "}\n")
     
@@ -75,8 +71,10 @@ build.model <-
       stan.code <- paste0(stan.code, "transformed data{\n")
       code.block <- ""
       for (transformed.data.key in names(transformed.data)){
-        stan.code <- paste0(stan.code, "\t", transformed.data[[transformed.data.key]][[1]], " ", transformed.data.key, ";\n")
-        code.block <- paste0(code.block, "\t", transformed.data[[transformed.data.key]][[2]], ";\n")
+        if (class(transformed.data[[transformed.data.key]]) != "list") stop(paste0("transformed.data[[", transformed.data.key, "]] is not a list."))
+        if (sort(names(transformed.data[[transformed.data.key]])) != c("dim", "expression", "type")) stop(paste0("transformed.data[[", transformed.data.key, "]] must only contain elements type, dim, and expression."))
+        stan.code <- paste0(stan.code, "\t", create.declaration(transformed.data.key, transformed.data[[transformed.data.key]]$type, transformed.data[[transformed.data.key]]$dim), "\n")
+        code.block <- paste0(code.block, "\t", transformed.data[[transformed.data.key]]$expression, "\n")
       }
       stan.code <- paste0(stan.code, "\n", code.block)
       stan.code <- paste0(stan.code, "}\n")
@@ -85,7 +83,9 @@ build.model <-
     #Parameters block
     stan.code <- paste0(stan.code, "parameters{\n")
     for (parameter.key in names(parameters)){
-      stan.code <- paste0(stan.code, "\t", parameters[[parameter.key]], " ", parameter.key, ";\n")
+      if (class(parameters[[parameter.key]]) != "list") stop(paste0("parameters[[", parameter.key, "]] is not a list."))
+      if (any(sort(names(parameters[[parameter.key]])) != c("dim", "type"))) stop(paste0("parameters[[", parameter.key, "]] must only contain elements type and dim."))
+      stan.code <- paste0(stan.code, "\t", create.declaration(parameter.key, parameters[[parameter.key]]$type, parameters[[parameter.key]]$dim), "\n")
     }
     stan.code <- paste0(stan.code, "}\n")
     
@@ -94,8 +94,10 @@ build.model <-
       stan.code <- paste0(stan.code, "transformed parameters{\n")
       code.block <- ""
       for (transformed.parameters.key in names(transformed.parameters)){
-        stan.code <- paste0(stan.code, "\t", transformed.parameters[[transformed.parameters.key]][[1]], " ", transformed.parameters.key, ";\n")
-        code.block <- paste0(code.block, "\t", transformed.parameters[[transformed.parameters.key]][[2]], ";\n")
+        if (class(transformed.parameters[[transformed.parameters.key]]) != "list") stop(paste0("transformed.parameters[[", transformed.parameters.key, "]] is not a list."))
+        if (any(sort(names(transformed.parameters[[transformed.parameters.key]])) != c("dim", "expression", "type"))) stop(paste0("transformed.parameters[[", transformed.parameters.key, "]] must only contain elements type, dim, and expression."))
+        stan.code <- paste0(stan.code, "\t", create.declaration(transformed.parameters.key, transformed.parameters[[transformed.parameters.key]]$type, transformed.parameters[[transformed.parameters.key]]$dim), "\n")
+        code.block <- paste0(code.block, "\t", transformed.parameters[[transformed.parameters.key]]$expression, "\n")
       }
       stan.code <- paste0(stan.code, "\n", code.block)
       stan.code <- paste0(stan.code, "}\n")
@@ -103,12 +105,13 @@ build.model <-
     
     #Model block
     stan.code <- paste0(stan.code, "model{\n")
+    if (any(sort(names(model)) != c("likelihood", "priors"))) stop("model must only contain elements priors and likelihood.")
     for (prior.code.line in model[["priors"]]){
-      stan.code <- paste0(stan.code, "\t", prior.code.line, ";\n")
+      stan.code <- paste0(stan.code, "\t", prior.code.line, "\n")
     }
     stan.code <- paste0(stan.code, "\n")
     for (likelihood.code.line in model[["likelihood"]]){
-      stan.code <- paste0(stan.code, "\t", likelihood.code.line, ";\n")
+      stan.code <- paste0(stan.code, "\t", likelihood.code.line, "\n")
     }
     stan.code <- paste0(stan.code, "}\n")
     

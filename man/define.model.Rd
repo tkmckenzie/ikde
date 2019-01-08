@@ -8,15 +8,15 @@ define.model(data, parameters, model, transformed.data = list(),
   transformed.parameters = list())
 }
 \arguments{
-\item{data}{A list of data passed to the Stan program. Should be of the form list(data.name = list(data.type, data.object)).}
+\item{data}{A list of data passed to the Stan program. Should be of the form list(data.name = list(type = string, dim = number/string (e.g., "[N]"), value = data.object)).}
 
-\item{parameters}{A list of parameters used in the Stan program. Should be of the form list(parameter.name = parameter.type).}
+\item{parameters}{A list of parameters used in the Stan program. Should be of the form list(parameter.name = list(type = string, dim = number/string)).}
 
 \item{model}{A list describing the Stan model. Should be a list with components "priors" and "likelihood".}
 
-\item{transformed.data}{A list describing data transformations for the Stan program to perform. Should be of the form list(variable.name = list(variable.type, variable.expression)).}
+\item{transformed.data}{A list describing data transformations for the Stan program to perform. Should be of the form list(variable.name = list(type = string, dim = number/string, expression = string)).}
 
-\item{transformed.parameters}{A list describing parameter transformations for the Stan program to perform. Should be of the form list(variable.name = list(variable.type, variable.expression)).}
+\item{transformed.parameters}{A list describing parameter transformations for the Stan program to perform. Should be of the form list(variable.name = list(type = string, dim = number/string, expression = string)).}
 }
 \value{
 Returns an ikde.model object with the following elements
@@ -43,15 +43,15 @@ data(lm.generated)
 X <- lm.generated$X
 y <- lm.generated$y
 
-data <- list(N = list("int<lower=1>", nrow(X)),
-             k = list("int<lower=1>", ncol(X)),
-             X = list("matrix[N, k]", X),
-             y = list("vector[N]", y))
-parameters <- list(beta = "vector[k]",
-                   sigma_sq = "real<lower=0>")
-model <- list(priors = c("beta ~ normal(0, 10)",
-                         "sigma_sq ~ inv_gamma(1, 1)"),
-              likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq))"))
+data <- list(N = list(type = "int<lower=1>", dim = 1, value = nrow(X)),
+             k = list(type = "int<lower=1>", dim = 1, value = ncol(X)),
+             X = list(type = "matrix", dim = "[N, k]", value = X),
+             y = list(type = "vector", dim = "[N]", value = y))
+parameters <- list(beta = list(type = "vector", dim = "[k]"),
+                   sigma_sq = list(type = "real<lower=0>", dim = 1))
+model <- list(priors = c("beta ~ normal(0, 10);",
+                         "sigma_sq ~ inv_gamma(1, 1);"),
+              likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq));"))
 
 ikde.model <- define.model(data, parameters, model)
 
