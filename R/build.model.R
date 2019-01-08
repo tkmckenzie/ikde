@@ -60,7 +60,12 @@ build.model <-
     stan.data = list()
     for (data.key in names(data)){
       if (class(data[[data.key]]) != "list") stop(paste0("data[[", data.key, "]] is not a list."))
-      stan.code <- paste0(stan.code, "\t", data[[data.key]][[1]], " ", data.key, ";\n")
+      if (sort(names(data[[data.key]])) != c("dim", "type", "value")) stop(paste0("data[[", data.key, "]] must only contain elements type, dim, and value."))
+      stan.code <- paste0(stan.code, "\t", data[[data.key]]$type, " ", ";\n")
+      data.dim <- data[[data.key]]$dim
+      if (is.numeric(data.dim)){
+        
+      }
       stan.data[[data.key]] <- data[[data.key]][[2]]
     }
     stan.code <- paste0(stan.code, "}\n")
