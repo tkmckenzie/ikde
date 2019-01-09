@@ -8,4 +8,5 @@
 stan.operator.to.r.operator <- list("(?<!\\.)\\*" = "%stan*%",
                                     "\\.\\*" = "*",
                                     " ./ " = "/",
-                                    "Phi" = "pnorm")
+                                    "Phi" = "pnorm",
+                                    "inv_logit" = "sigmoid")

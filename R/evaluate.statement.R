@@ -17,15 +17,15 @@
 #' X <- lm.generated$X
 #' y <- lm.generated$y
 #' 
-#' data <- list(N = list("int<lower=1>", nrow(X)),
-#'              k = list("int<lower=1>", ncol(X)),
-#'              X = list("matrix[N, k]", X),
-#'              y = list("vector[N]", y))
-#' parameters <- list(beta = "vector[k]",
-#'                    sigma_sq = "real<lower=0>")
-#' model <- list(priors = c("beta ~ normal(0, 10)",
-#'                          "sigma_sq ~ inv_gamma(1, 1)"),
-#'               likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq))"))
+#' data <- list(N = list(type = "int<lower=1>", dim = 1, value = nrow(X)),
+#'              k = list(type = "int<lower=1>", dim = 1, value = ncol(X)),
+#'              X = list(type = "matrix", dim = "[N, k]", value = X),
+#'              y = list(type = "vector", dim = "[N]", value = y))
+#' parameters <- list(beta = list(type = "vector", dim = "[k]"),
+#'                    sigma_sq = list(type = "real<lower=0>", dim = 1))
+#' model <- list(priors = c("beta ~ normal(0, 10);",
+#'                          "sigma_sq ~ inv_gamma(1, 1);"),
+#'               likelihood = c("y ~ normal(X * beta, sqrt(sigma_sq));"))
 #' 
 #' ikde.model <- define.model(data, parameters, model)
 #' 
@@ -54,7 +54,7 @@ evaluate.statement <-
     #Resolve variables in lhs
     for (data.var in names(ikde.model$data)){
       regex <- paste0("(?<![0-9A-Za-z\\.\\$_]{1})", data.var, "(?![0-9A-Za-z\\.\\$_]{1})")
-      lhs <- gsub(regex, paste0("ikde.model$data$", data.var, "[[2]]"), lhs, perl = TRUE)
+      lhs <- gsub(regex, paste0("ikde.model$data$", data.var, "$value"), lhs, perl = TRUE)
     }
     for (eval.var in names(eval.point)){
       regex <- paste0("(?<![0-9A-Za-z\\.\\$_]{1})", eval.var, "(?![0-9A-Za-z\\.\\$_]{1})")
@@ -62,18 +62,18 @@ evaluate.statement <-
     }
     
     #Extract distribution and map to R function
-    distribution.stan <- gsub("\\([0-9A-Za-z\\.,\\*/\\+\\-\\^_\\(\\)]+\\)$", "", rhs)
+    distribution.stan <- gsub("\\([0-9A-Za-z\\.,\\*/\\+\\-\\^_\\(\\)]+\\);$", "", rhs)
     
     if (!(distribution.stan %in% names(stan.dist.to.r.dist))) stop(paste0(distribution.stan, " distribution not currently supported."))
     distribution.r <- stan.dist.to.r.dist[[distribution.stan]]$distribution.r
     
-    arg.values <- strsplit(gsub("\\)$", "", gsub("^\\(", "", gsub(distribution.stan, "", rhs))), ",")[[1]]
-    arg.names = stan.dist.to.r.dist[[distribution.stan]]$args
+    arg.values <- strsplit(gsub("\\);$", "", gsub("^\\(", "", gsub(distribution.stan, "", rhs))), ",")[[1]]
+    arg.names <- stan.dist.to.r.dist[[distribution.stan]]$args
     
     #Resolve variables in distribution arguments
     for (data.var in names(ikde.model$data)){
       regex <- paste0("(?<![0-9A-Za-z\\.\\$_]{1})", data.var, "(?![0-9A-Za-z\\.\\$_]{1})")
-      arg.values <- gsub(regex, paste0("ikde.model$data$", data.var, "[[2]]"), arg.values, perl = TRUE)
+      arg.values <- gsub(regex, paste0("ikde.model$data$", data.var, "$value"), arg.values, perl = TRUE)
     }
     for (eval.var in names(eval.point)){
       regex <- paste0("(?<![0-9A-Za-z\\.\\$_]{1})", eval.var, "(?![0-9A-Za-z\\.\\$_]{1})")
@@ -88,7 +88,7 @@ evaluate.statement <-
     args$x <- evaluate.expression(lhs, ikde.model = ikde.model, eval.point = eval.point)
     
     #Additional arguments to distribution.r
-    args$log = TRUE
+    args$log <- TRUE
     
     #Evaluate sampling statement
     return(sum(eval(parse(text = paste0("do.call(", distribution.r, ", args = args)")))))

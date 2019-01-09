@@ -72,7 +72,7 @@ build.model <-
       code.block <- ""
       for (transformed.data.key in names(transformed.data)){
         if (class(transformed.data[[transformed.data.key]]) != "list") stop(paste0("transformed.data[[", transformed.data.key, "]] is not a list."))
-        if (sort(names(transformed.data[[transformed.data.key]])) != c("dim", "expression", "type")) stop(paste0("transformed.data[[", transformed.data.key, "]] must only contain elements type, dim, and expression."))
+        if (any(sort(names(transformed.data[[transformed.data.key]])) != c("dim", "expression", "type"))) stop(paste0("transformed.data[[", transformed.data.key, "]] must only contain elements type, dim, and expression."))
         stan.code <- paste0(stan.code, "\t", create.declaration(transformed.data.key, transformed.data[[transformed.data.key]]$type, transformed.data[[transformed.data.key]]$dim), "\n")
         code.block <- paste0(code.block, "\t", transformed.data[[transformed.data.key]]$expression, "\n")
       }

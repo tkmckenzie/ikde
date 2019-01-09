@@ -65,12 +65,12 @@ create.restricted.models <-
       parameter.restriction <- substr(parameter.type, as.numeric(parameter.restriction.pos), as.numeric(parameter.restriction.pos) + attr(parameter.restriction.pos, "match.length") - 1)
       if (grepl("vector", parameter.type)){
         #Only need to build two models: One with partially restricted vector and one with fully restricted vector (if this is not the last parameter in the model)
-        vector.length.pos <- gregexpr("(?<=vector\\[)[0-9A-Za-z\\.,\\*/\\+\\-\\^_]+(?=\\])", parameter.type, perl = TRUE)[[1]]
-        vector.length <- substr(parameter.type, as.numeric(vector.length.pos), as.numeric(vector.length.pos) + attr(vector.length.pos, "match.length") - 1)
+        vector.length.pos <- gregexpr("(?<=\\[)[0-9A-Za-z\\.,\\*/\\+\\-\\^_]+(?=\\])", parameter.dim, perl = TRUE)[[1]]
+        vector.length <- substr(parameter.dim, as.numeric(vector.length.pos), as.numeric(vector.length.pos) + attr(vector.length.pos, "match.length") - 1)
         vector.length.eval <- vector.length
         for (data.var in names(ikde.model$data)){
           regex <- paste0("(?<![0-9A-Za-z\\.\\$_]{1})", data.var, "(?![0-9A-Za-z\\.\\$_]{1})")
-          vector.length.eval <- gsub(regex, paste0("ikde.model$data$", data.var, "[[2]]"), vector.length.eval, perl = TRUE)
+          vector.length.eval <- gsub(regex, paste0("ikde.model$data$", data.var, "$value"), vector.length.eval, perl = TRUE)
         }
         vector.length.eval <- evaluate.expression(vector.length.eval, ikde.model = ikde.model, eval.point = eval.point)
         
@@ -85,9 +85,8 @@ create.restricted.models <-
         partial.ikde.model$data$num_restrictions <- list(type = paste0("int<lower=1,upper=", vector.length, "-1>"), dim = 1, value = 1) #Can change number of restrictions in ML estimation
         partial.ikde.model$data[[parameter.restr.all]] <- list(type = paste0("vector", parameter.restriction), dim = paste0("[", vector.length, "]"), value = as.array(eval.point[[parameter]])) #Add restricted values to data
         partial.ikde.model$transformed.data[[parameter.restr]] <- list(type = paste0("vector", parameter.restriction), dim = "[num_restrictions]", expression = paste0(parameter.restr, " = head(", parameter.restr.all, ", num_restrictions);"))
-        partial.ikde.model$parameters[[parameter.unrestr]] <- paste0("vector", parameter.restriction, "[", vector.length, "-num_restrictions]") #Add unrestricted values to parameters
+        partial.ikde.model$parameters[[parameter.unrestr]] <- list(type = paste0("vector", parameter.restriction), dim = paste0("[", vector.length, "-num_restrictions]")) #Add unrestricted values to parameters
         partial.ikde.model$transformed.parameters <- append(eval(parse(text = paste0("list(", parameter, " = list(type = \"vector\"", parameter.restriction, ", dim = \"[", vector.length, "]\", expression = \"", parameter, " = append_row(", parameter.restr, ", ", parameter.unrestr, ");\"))"))), partial.ikde.model$transformed.parameters)
-        #####  ENDED HERE #####
         for (statement.num in 1:length(partial.ikde.model$model$priors)){
           statement <- partial.ikde.model$model$priors[statement.num]
           lhs <- gsub(" ", "", strsplit(statement, "~")[[1]][1])
